@@ -41,6 +41,7 @@ var PasswordLoginEnabled = true
 var PasswordRegisterEnabled = true
 var EmailVerificationEnabled = false
 var GitHubOAuthEnabled = false
+var LinuxDOOAuthEnabled = false
 var WeChatAuthEnabled = false
 var TelegramOAuthEnabled = false
 var TurnstileCheckEnabled = false
@@ -74,6 +75,9 @@ var SMTPToken = ""
 
 var GitHubClientId = ""
 var GitHubClientSecret = ""
+
+var LinuxDOClientId = ""
+var LinuxDOClientSecret = ""
 
 var WeChatServerAddress = ""
 var WeChatServerToken = ""
@@ -222,6 +226,7 @@ const (
 	ChannelCloudflare         = 39
 	ChannelTypeSiliconFlow    = 40
 	ChannelTypeVertexAi       = 41
+	ChannelTypeMistral        = 42
 
 	ChannelTypeDummy // this one is only for count, do not add any channel after this
 
@@ -270,4 +275,5 @@ var ChannelBaseURLs = []string{
 	"https://api.cloudflare.com",                //39
 	"https://api.siliconflow.cn",                //40
 	"",                                          //41
+	"https://api.mistral.ai",                    //42
 }
