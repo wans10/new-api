@@ -1,19 +1,371 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#ffffff" />
-    <meta
-      name="description"
-      content="OpenAI 接口聚合管理，支持多种渠道包括 Azure，可用于二次分发管理 key，仅单可执行文件，已打包好 Docker 镜像，一键部署，开箱即用"
-    />
-    <title>LLM Hub</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <script type="module" src="/src/index.js"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LLM Hub 是领先的大语言模型集成平台，支持 OpenAI、Claude、Gemini 等，提供便捷、安全、高效的人工智能解决方案，助力企业快速迈入 AIGC 时代。">
+  <meta name="keywords" content="LLM, 大语言模型, OpenAI, Claude, Gemini, 人工智能平台, AIGC, 自然语言处理, 大模型集成, 学术优化, Academic">
+  <title>LLM Hub | 大型语言模型集成平台</title>
+  <link rel="icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #0078d7;
+      --primary-light: #e6f3ff;
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --background: #ffffff;
+      --card-bg: #f8fafc;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      background: var(--background);
+      line-height: 1.6;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: var(--transition);
+    }
+    .hero {
+      padding: 40px 20px;
+      background: linear-gradient(135deg, var(--primary-light), #ffffff);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230078d7' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero .text {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), #1e90ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .hero h2 {
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+    }
+    .hero .cta {
+      display: inline-block;
+      padding: 12px 28px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      font-weight: 500;
+      box-shadow: var(--shadow-md);
+      transition: var(--transition);
+    }
+    .hero .cta:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    .application {
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .application h3 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+    }
+    .application-container {
+      display: grid;
+      gap: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .application-item {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      text-align: center;
+      animation: fadeIn 0.6s ease-out forwards;
+      display: flex;
+      flex-direction: column;
+      min-height: 350px; /* Set a minimum height for all cards */
+    }
+    .application-item:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+    .application-item img {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      transition: var(--transition);
+    }
+    .application-item:hover img {
+      transform: scale(1.1);
+    }
+    .application-item h4 {
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+    .application-item p {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+    .application-item .chat {
+      display: inline-block;
+      padding: 10px 24px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: var(--transition);
+      margin: 0;
+    }
+    .application-item .chat:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .models {
+      padding: 40px 20px;
+      background: var(--card-bg);
+    }
+    .models .grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .models h3 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+    }
+    .models .grid-item {
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      overflow: hidden;
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+    .models .grid-item a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      width: 100%;
+      height: 100%;
+    }
+    .models .grid-item:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+    .models .grid-item img {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      transition: var(--transition);
+    }
+    .models .grid-item:hover img {
+      transform: scale(1.1);
+    }
+    .models .grid-item p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-align: center;
+    }
+    .uses {
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .uses h3 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+    }
+    .uses-container {
+      display: grid;
+      gap: 25px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .uses-item {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      text-align: center;
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+    .uses-item:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+    .uses-item h4 {
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    .uses-item p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    @media (min-width: 768px) {
+      .hero {
+        padding: 80px 40px;
+        text-align: left;
+      }
+
+      .hero .text {
+        max-width: 600px;
+      }
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .application-item:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .application-item:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  </style>
+</head>
+<body>
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="root">
+  <!-- 所有的section内容 -->
+  <section class="hero">
+    <div class="text">
+      <h1>LLM Hub</h1>
+      <h2>大型语言模型集成平台</h2>
+      <p>科技改变生活，与我们一起全力加速AIGC时代的到来。</p>
+      <a href="https://www.llmhub.net/login" class="cta">登录</a>
+    </div>
+  </section>
+  <section class="application">
+    <h3>我们提供的服务</h3>
+    <div class="application-container">
+      <div class="application-item">
+        <img src="https://docs.openwebui.com/sponsors/sponsor.png" alt="Open WebUI">
+        <h4>Open WebUI</h4>
+        <p>可扩展、功能丰富且用户友好的自托管 WebUI</p>
+        <a href="https://chat.llmhub.net" class="chat">开始使用</a>
+      </div>
+      <div class="application-item">
+        <img src="https://github.com/binary-husky/gpt_academic/raw/master/docs/logo.png" alt="GPT 学术优化">
+        <h4>GPT 学术优化</h4>
+        <p>优化论文阅读/润色/写作体验，支持Python和C++等项目剖析与自译解功能，PDF/LaTex论文翻译与总结</p>
+        <a href="https://acad.llmhub.net" class="chat">开始使用</a>
+      </div>
+      <div class="application-item">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Dall-e_3_%28jan_%2724%29_artificial_intelligence_icon.png?20240118012653" alt="API">
+        <h4>API服务</h4>
+        <p>大语言模型管理系统，支持调用多种大语言模型API</p>
+        <a href="https://www.llmhub.net/token" class="chat">开始使用</a>
+      </div>
+    </div>
+  </section>
+  <section class="models">
+    <h3>完美适配众多大语言模型</h3>
+    <div class="grid">
+      <div class="grid-item">
+        <a href="https://openai.com" target="_blank">
+          <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/openai.png" alt="OpenAI ChatGPT">
+          <p>ChatGPT</p>
+        </a>
+      </div>
+      <div class="grid-item">
+        <a href="https://www.anthropic.com" target="_blank">
+          <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/claude-color.png" alt="Anthropic Claude">
+          <p>Claude</p>
+        </a>
+      </div>
+      <div class="grid-item">
+        <a href="https://gemini.google.com" target="_blank">
+          <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/gemini-color.png" alt="Google Gemini">
+          <p>Gemini</p>
+        </a>
+      </div>
+      <div class="grid-item">
+        <a href="https://www.midjourney.com" target="_blank">
+          <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/midjourney.png" alt="Midjourney">
+          <p>Midjourney</p>
+        </a>
+      </div>
+      <div class="grid-item">
+        <a href="https://www.aliyun.com/product/bailian" target="_blank">
+          <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/qwen-color.png" alt="通义千问">
+          <p>通义千问</p>
+        </a>
+      </div>
+    </div>
+  </section>
+  <section class="uses">
+    <h3>大语言模型的主要用途</h3>
+    <div class="uses-container">
+      <div class="uses-item">
+        <h4>自然语言处理</h4>
+        <p>文本生成、语言翻译、摘要提取、情感分析等。</p>
+      </div>
+      <div class="uses-item">
+        <h4>教育辅助</h4>
+        <p>生成个性化学习资料，协助教学和自学。</p>
+      </div>
+      <div class="uses-item">
+        <h4>代码辅助</h4>
+        <p>帮助开发者快速编写、优化代码，提高开发效率。</p>
+      </div>
+      <div class="uses-item">
+        <h4>创意生成</h4>
+        <p>生成故事、设计概念、市场文案等创意内容。</p>
+      </div>
+    </div>
+  </section>
+</div>
+<script type="module" src="/src/index.js"></script>
+</body>
 </html>
