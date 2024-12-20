@@ -44,7 +44,6 @@ const Home = () => {
             <h1>LLM Hub</h1>
             <h2>大型语言模型集成平台</h2>
             <p>科技改变生活，与我们一起全力加速AIGC时代的到来。</p>
-            <a href="https://www.llmhub.net/login" className="cta">登录</a>
           </div>
         </section>
         <section className="application">
