@@ -31,7 +31,7 @@ import { StatusContext } from './context/Status';
 import { setStatusData } from './helpers/data.js';
 import { API, showError } from './helpers';
 
-// const Home = lazy(() => import('./pages/Home'));
+const Home = lazy(() => import('./pages/Home'));
 const Detail = lazy(() => import('./pages/Detail'));
 const About = lazy(() => import('./pages/About'));
 
