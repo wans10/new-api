@@ -56,13 +56,13 @@ const Home = () => {
               <a href="https://chat.llmhub.net" className="chat">开始使用</a>
             </div>
             <div className="application-item">
-              <img src="https://github.com/binary-husky/gpt_academic/raw/master/docs/logo.png" alt="GPT 学术优化" />
+              <img src="/academic-icon.png" alt="GPT 学术优化" />
               <h4>GPT 学术优化</h4>
               <p>优化论文阅读/润色/写作体验，支持Python和C++等项目剖析与自译解功能，PDF/LaTex论文翻译与总结</p>
               <a href="https://acad.llmhub.net" className="chat">开始使用</a>
             </div>
             <div className="application-item">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Dall-e_3_%28jan_%2724%29_artificial_intelligence_icon.png?20240118012653" alt="API" />
+              <img src="/ai-icon.png" alt="API" />
               <h4>API服务</h4>
               <p>大语言模型管理系统，支持调用多种大语言模型API</p>
               <a href="https://www.llmhub.net/token" className="chat">开始使用</a>
@@ -74,31 +74,31 @@ const Home = () => {
           <div className="grid">
             <div className="grid-item">
               <a href="https://openai.com" target="_blank" rel="noreferrer">
-                <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/openai.png" alt="OpenAI ChatGPT" />
+                <img src="/openai-icon.png" alt="OpenAI ChatGPT" />
                 <p>ChatGPT</p>
               </a>
             </div>
             <div className="grid-item">
               <a href="https://www.anthropic.com" target="_blank" rel="noreferrer">
-                <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/claude-color.png" alt="Anthropic Claude" />
+                <img src="/claude-icon.png" alt="Anthropic Claude" />
                 <p>Claude</p>
               </a>
             </div>
             <div className="grid-item">
               <a href="https://gemini.google.com" target="_blank" rel="noreferrer">
-                <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/gemini-color.png" alt="Google Gemini" />
+                <img src="/gemini-icon.png" alt="Google Gemini" />
                 <p>Gemini</p>
               </a>
             </div>
             <div className="grid-item">
               <a href="https://www.midjourney.com" target="_blank" rel="noreferrer">
-                <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/midjourney.png" alt="Midjourney" />
+                <img src="/midjourney-icon.png" alt="Midjourney" />
                 <p>Midjourney</p>
               </a>
             </div>
             <div className="grid-item">
               <a href="https://www.aliyun.com/product/bailian" target="_blank" rel="noreferrer">
-                <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/qwen-color.png" alt="通义千问" />
+                <img src="/qwen-icon.png" alt="通义千问" />
                 <p>通义千问</p>
               </a>
             </div>
