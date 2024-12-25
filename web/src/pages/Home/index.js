@@ -50,7 +50,7 @@ const Home = () => {
           <h3>我们提供的服务</h3>
           <div className="application-container">
             <div className="application-item">
-              <img src="https://docs.openwebui.com/sponsors/sponsor.png" alt="Open WebUI" />
+              <img src="/web/public/openwebui-icon.png" alt="Open WebUI" />
               <h4>Open WebUI</h4>
               <p>可扩展、功能丰富且用户友好的自托管 WebUI</p>
               <a href="https://chat.llmhub.net" className="chat">开始使用</a>
