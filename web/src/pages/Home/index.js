@@ -74,32 +74,38 @@ const Home = () => {
           <div className="grid">
             <div className="grid-item">
               <a href="https://openai.com" target="_blank" rel="noreferrer">
-                <img src="/openai-icon.png" alt="OpenAI ChatGPT" />
+                <img src="/openai-icon.png" alt="OpenAI ChatGPT"/>
                 <p>ChatGPT</p>
               </a>
             </div>
             <div className="grid-item">
               <a href="https://www.anthropic.com" target="_blank" rel="noreferrer">
-                <img src="/claude-icon.png" alt="Anthropic Claude" />
+                <img src="/claude-icon.png" alt="Anthropic Claude"/>
                 <p>Claude</p>
               </a>
             </div>
             <div className="grid-item">
               <a href="https://gemini.google.com" target="_blank" rel="noreferrer">
-                <img src="/gemini-icon.png" alt="Google Gemini" />
+                <img src="/gemini-icon.png" alt="Google Gemini"/>
                 <p>Gemini</p>
               </a>
             </div>
             <div className="grid-item">
               <a href="https://www.midjourney.com" target="_blank" rel="noreferrer">
-                <img src="/midjourney-icon.png" alt="Midjourney" />
+                <img src="/midjourney-icon.png" alt="Midjourney"/>
                 <p>Midjourney</p>
               </a>
             </div>
             <div className="grid-item">
               <a href="https://www.aliyun.com/product/bailian" target="_blank" rel="noreferrer">
-                <img src="/qwen-icon.png" alt="通义千问" />
+                <img src="/qwen-icon.png" alt="通义千问"/>
                 <p>通义千问</p>
+              </a>
+            </div>
+            <div className="grid-item">
+              <a href="https://www.zhipuai.cn" target="_blank" rel="noreferrer">
+                <img src="/zhipu-icon.png" alt="智谱GLM"/>
+                <p>智谱GLM</p>
               </a>
             </div>
           </div>
