@@ -65,7 +65,7 @@ const Home = () => {
               <img src="/ai-icon.png" alt="API" />
               <h4>{t('API服务')}</h4>
               <p>{t('大语言模型管理系统，支持调用多种大语言模型API')}</p>
-              <a href="https://www.llmhub.net/token" className="chat">{t('开始使用')}</a>
+              <a href="https://www.llmhub.net/token" className="chat">{t('开始部署')}</a>
             </div>
           </div>
         </section>
