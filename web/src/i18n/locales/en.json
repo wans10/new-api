@@ -1240,5 +1240,6 @@
   "时间范围": "Time range",
   "批量设置标签": "Batch set tag",
   "请输入要设置的标签名称": "Please enter the tag name to be set",
-  "请输入标签名称": "Please enter the tag name"
+  "请输入标签名称": "Please enter the tag name",
+  "大型语言模型集成平台": "Large Language Model Integration Platform"
 }
