@@ -53,19 +53,19 @@ const Home = () => {
               <img src="/openwebui-icon.png" alt="Open WebUI" />
               <h4>Open WebUI</h4>
               <p>{t('可扩展、功能丰富且用户友好的自托管WebUI')}</p>
-              <a href="https://chat.llmhub.net" className="chat">{t('开始使用')}</a>
+              <a href="https://chat.llmhub.net" className="chat" target="_blank" rel="noreferrer">{t('开始使用')}</a>
             </div>
             <div className="application-item">
               <img src="/academic-icon.png" alt="GPT 学术优化" />
               <h4>{t('GPT学术优化')}</h4>
               <p>{t('优化论文阅读/润色/写作体验，支持Python和C++等项目剖析与自译解功能，PDF/LaTex论文翻译与总结')}</p>
-              <a href="https://acad.llmhub.net" className="chat">{t('开始使用')}</a>
+              <a href="https://acad.llmhub.net" className="chat" target="_blank" rel="noreferrer">{t('开始使用')}</a>
             </div>
             <div className="application-item">
               <img src="/ai-icon.png" alt="API" />
               <h4>{t('API服务')}</h4>
               <p>{t('大语言模型管理系统，支持调用多种大语言模型API')}</p>
-              <a href="https://www.llmhub.net/token" className="chat">{t('开始部署')}</a>
+              <a href="https://www.llmhub.net/token" className="chat" target="_blank" rel="noreferrer">{t('开始部署')}</a>
             </div>
           </div>
         </section>
