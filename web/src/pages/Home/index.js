@@ -90,7 +90,7 @@ const Home = () => {
       background: 'linear-gradient(135deg, #0078d7, #1e90ff)',
       WebkitBackgroundClip: 'text',
       WebkitTextFillColor: 'transparent',
-      textAlign: 'center'
+      textAlign: 'left'
     },
     heroSubtitle: {
       fontSize: '1.8rem',
@@ -98,7 +98,7 @@ const Home = () => {
       lineHeight: 1.4,
       marginBottom: '24px',
       fontWeight: 400,
-      textAlign: 'center'
+      textAlign: 'left'
     },
     sectionTitle: {
       fontSize: '1.8rem',
@@ -108,7 +108,7 @@ const Home = () => {
     },
     serviceCard: {
       height: '100%',
-      borderRadius: '12px',
+      borderRadius: '3px',
       background: '#f8fafc',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
       transition: 'all 0.3s ease',
