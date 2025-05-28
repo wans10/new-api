@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, Typography, Button, Space, Row, Col, Image } from '@douyinfe/semi-ui';
-import { IconGithub } from '@douyinfe/semi-icons';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { onOIDCAuthClicked } from 'utils/common';
@@ -31,17 +30,17 @@ const BaseIndex = () => {
         <div className="base-index">
             {/* 添加全局动画样式 */}
             <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `}</style>
 
             {/* Hero Section */}
             <div className="hero-section">
