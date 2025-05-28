@@ -214,7 +214,7 @@ const Home = () => {
               </div>
 
               {/* Services Section */}
-              <div style={{ marginBottom: '64px' }}>
+              <div style={{ marginBottom: '64px', padding: '0 40px' }}>
                 <Title level={3} style={styles.sectionTitle}>
                   {t('支持的开源项目')}
                 </Title>
