@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Card, Col, Row, Button, Typography, Space } from '@douyinfe/semi-ui';
+import { Card, Col, Row, Typography, Space, Divider } from '@douyinfe/semi-ui';
 import { API, showError, showNotice, timestamp2string } from '../../helpers';
 import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
 import { StyleContext } from '../../context/Style/index.js';
 import { useTranslation } from 'react-i18next';
+
+const { Title, Paragraph, Text } = Typography;
 
 const Home = () => {
   const { t, i18n } = useTranslation();
@@ -68,261 +70,216 @@ const Home = () => {
     displayHomePageContent().then();
   }, []);
 
-  // 定义内联样式
+  // 内联样式
   const styles = {
-    container: {
-      background: 'var(--semi-color-bg-0)',
-      minHeight: '100vh'
+    fadeIn: {
+      animation: 'fadeIn 0.6s ease-out forwards'
     },
     heroSection: {
-      background: 'linear-gradient(135deg, var(--semi-color-primary-light-default, #e6f3ff) 0%, var(--semi-color-bg-1) 100%)',
-      padding: '60px 24px',
-      marginBottom: '48px',
-      borderRadius: '12px',
-      margin: '0 24px 48px 24px',
       position: 'relative',
-      overflow: 'hidden'
+      padding: '60px 20px',
+      marginBottom: '48px',
+      background: 'linear-gradient(135deg, #e6f3ff 0%, #f0f8ff 100%)',
+      borderRadius: '12px'
     },
     heroTitle: {
-      fontSize: '2.5rem',
+      fontSize: '2.6rem',
       fontWeight: 600,
-      lineHeight: 1.2,
-      marginBottom: '16px',
-      background: 'linear-gradient(135deg, var(--semi-color-primary, #0078d7), #1e90ff)',
+      lineHeight: 1.4,
+      marginBottom: '8px',
+      background: 'linear-gradient(135deg, #0078d7, #1e90ff)',
       WebkitBackgroundClip: 'text',
       WebkitTextFillColor: 'transparent',
       textAlign: 'center'
     },
     heroSubtitle: {
-      fontSize: '1.2rem',
-      color: 'var(--semi-color-text-1)',
-      lineHeight: 1.6,
-      marginBottom: '32px',
-      textAlign: 'center',
-      maxWidth: '800px',
-      margin: '0 auto 32px auto'
+      fontSize: '1.8rem',
+      color: '#4a5568',
+      lineHeight: 1.4,
+      marginBottom: '24px',
+      fontWeight: 400,
+      textAlign: 'center'
     },
     sectionTitle: {
-      fontSize: '2rem',
-      fontWeight: 500,
+      fontSize: '1.8rem',
       textAlign: 'center',
       marginBottom: '32px',
-      color: 'var(--semi-color-text-0)'
-    },
-    modernCard: {
-      borderRadius: '16px',
-      background: 'var(--semi-color-bg-1)',
-      border: '1px solid var(--semi-color-border)',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      cursor: 'pointer',
-      overflow: 'hidden'
-    },
-    cardHover: {
-      transform: 'translateY(-8px)',
-      boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-      borderColor: 'var(--semi-color-primary-light-default)'
+      fontWeight: 400
     },
     serviceCard: {
       height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '24px',
-      textAlign: 'center'
+      borderRadius: '12px',
+      background: '#f8fafc',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      transition: 'all 0.3s ease',
+      cursor: 'pointer'
+    },
+    serviceCardHover: {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 10px 15px rgba(0,0,0,0.1)'
     },
     serviceIcon: {
-      width: '64px',
-      height: '64px',
-      margin: '0 auto 16px auto',
-      borderRadius: '12px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'var(--semi-color-primary-light-default)',
-      fontSize: '2rem'
+      width: '80px',
+      height: '80px',
+      margin: '0 auto 20px',
+      transition: 'transform 0.3s ease'
     },
     modelCard: {
-      padding: '20px',
-      textAlign: 'center',
-      minHeight: '120px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center'
+      padding: '20px',
+      height: '100%',
+      borderRadius: '12px',
+      background: '#f8fafc',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      transition: 'all 0.3s ease',
+      cursor: 'pointer'
     },
     modelIcon: {
       width: '48px',
       height: '48px',
       marginBottom: '12px',
-      borderRadius: '8px'
+      transition: 'transform 0.3s ease'
     },
     useCaseCard: {
+      height: '100%',
+      borderRadius: '12px',
+      background: '#f8fafc',
       padding: '24px',
-      textAlign: 'center',
-      height: '100%'
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      transition: 'all 0.3s ease',
+      cursor: 'pointer'
     },
-    fadeIn: {
-      animation: 'fadeInUp 0.6s ease-out forwards'
+    useCaseTitle: {
+      fontSize: '1.4rem',
+      marginBottom: '12px',
+      fontWeight: 400,
+      color: '#0078d7',
+      textAlign: 'center'
     }
   };
 
-  // 添加CSS动画
+  // 添加全局样式
   useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes fadeInUp {
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = `
+      @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(30px);
+          transform: translateY(20px);
         }
         to {
           opacity: 1;
           transform: translateY(0);
         }
       }
-      
-      .modern-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        border-color: var(--semi-color-primary-light-default);
+      .service-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 10px 15px rgba(0,0,0,0.1) !important;
       }
-      
-      .service-icon:hover {
-        transform: scale(1.1);
-        transition: transform 0.3s ease;
+      .service-card:hover img {
+        transform: scale(1.1) !important;
       }
-      
-      .model-icon:hover {
-        transform: scale(1.1);
-        transition: transform 0.3s ease;
+      .model-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+      }
+      .model-card:hover img {
+        transform: scale(1.1) !important;
+      }
+      .use-case-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
       }
     `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
+    document.head.appendChild(styleElement);
+    return () => document.head.removeChild(styleElement);
   }, []);
 
-  // 支持的服务数据
-  const services = [
-    {
-      icon: '🤖',
-      title: 'Cline',
-      desc: t('IDE 中的自主编码代理'),
-      link: 'https://cline.bot'
-    },
-    {
-      icon: '⚡',
-      title: 'Cursor',
-      desc: t('使用 AI 编写代码的最佳方式'),
-      link: 'https://cursor.sh'
-    },
-    {
-      icon: '🔄',
-      title: 'n8n',
-      desc: t('为技术团队提供灵活的 AI 工作流程自动化'),
-      link: 'https://n8n.io'
-    },
-    {
-      icon: '🚀',
-      title: 'Dify',
-      desc: t('开源的 LLM 应用开发平台'),
-      link: 'https://dify.ai'
-    },
-    {
-      icon: '📚',
-      title: t('GPT学术优化'),
-      desc: t('优化论文阅读/润色/写作体验'),
-      link: 'https://acad.llmhub.com.cn'
-    },
-    {
-      icon: '💬',
-      title: 'Lobe Chat',
-      desc: t('现代化设计的开源 ChatGPT/LLMs 聊天应用与开发框架'),
-      link: 'https://lobe.llmhub.com.cn'
-    },
-    {
-      icon: '🌐',
-      title: 'Open WebUI',
-      desc: t('可扩展、功能丰富且用户友好的自托管WebUI'),
-      link: 'https://open.llmhub.com.cn'
-    },
-    {
-      icon: '🔗',
-      title: t('API服务'),
-      desc: t('支持多种模型，包括ChatGPT、Claude、Grok、Gemini等大语言模型API调用'),
-      link: 'https://www.llmhub.net/token'
-    }
-  ];
-
-  // 支持的模型数据
-  const models = [
-    { name: 'ChatGPT', icon: '🤖', link: 'https://openai.com' },
-    { name: 'Claude', icon: '🧠', link: 'https://www.anthropic.com' },
-    { name: 'Gemini', icon: '💎', link: 'https://gemini.google.com' },
-    { name: 'Grok', icon: '🚀', link: 'https://x.ai' },
-    { name: 'DeepSeek', icon: '🔍', link: 'https://www.deepseek.com' },
-    { name: '通义千问', icon: '💭', link: 'https://www.aliyun.com/product/bailian' },
-    { name: '智谱GLM', icon: '⚡', link: 'https://www.zhipuai.cn' }
-  ];
-
-  // 用途数据
-  const useCases = [
-    {
-      title: t('自然语言处理'),
-      desc: t('文本生成、语言翻译、摘要提取、情感分析等。'),
-      icon: '📝'
-    },
-    {
-      title: t('教育辅助'),
-      desc: t('论文写作、作业辅助、知识问答、编程辅助等。'),
-      icon: '🎓'
-    },
-    {
-      title: t('代码辅助'),
-      desc: t('代码生成、代码补全、代码翻译、代码注释等。'),
-      icon: '💻'
-    },
-    {
-      title: t('创意生成'),
-      desc: t('图像生成、音频生成、视频生成、设计生成等。'),
-      icon: '🎨'
-    }
-  ];
-
   return (
-      <div style={styles.container}>
+      <>
         {homePageContentLoaded && homePageContent === '' ? (
-            <>
+            <div>
               {/* Hero Section */}
               <div style={styles.heroSection}>
-                <div style={styles.heroTitle}>
-                  {t('一站式人工智能集成平台')}
-                </div>
-                <div style={styles.heroSubtitle}>
-                  {t('与ChatGPT、Claude、Grok、Gemini、DeepSeek、Qwen等众多人工智能模型互动。')}
+                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                  <Title level={1} style={styles.heroTitle}>
+                    {t('一站式人工智能集成平台')}
+                  </Title>
+                  <Title level={2} style={styles.heroSubtitle}>
+                    {t('与ChatGPT、Claude、Grok、Gemini、DeepSeek、Qwen等众多人工智能模型互动。')}
+                  </Title>
                 </div>
               </div>
 
               {/* Services Section */}
-              <div style={{ padding: '0 24px', marginBottom: '64px' }}>
-                <Typography.Title level={2} style={styles.sectionTitle}>
+              <div style={{ marginBottom: '64px' }}>
+                <Title level={3} style={styles.sectionTitle}>
                   {t('支持的开源项目')}
-                </Typography.Title>
+                </Title>
                 <Row gutter={[24, 24]}>
-                  {services.map((service, index) => (
-                      <Col span={6} key={index}>
+                  {[
+                    {
+                      img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/cline.svg",
+                      title: "Cline",
+                      desc: t('IDE 中的自主编码代理')
+                    },
+                    {
+                      img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/cursor.svg",
+                      title: "Cursor",
+                      desc: t('使用 AI 编写代码的最佳方式')
+                    },
+                    {
+                      img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/1.46.0/files/icons/n8n.svg",
+                      title: "n8n",
+                      desc: t('为技术团队提供灵活的 AI 工作流程自动化')
+                    },
+                    {
+                      img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/dify-color.svg",
+                      title: "Dify",
+                      desc: t('开源的 LLM 应用开发平台')
+                    },
+                    {
+                      img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/gradio-color.svg",
+                      title: t('GPT学术优化'),
+                      desc: t('优化论文阅读/润色/写作体验')
+                    },
+                    {
+                      img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/lobehub-color.svg",
+                      title: "Lobe Chat",
+                      desc: t('现代化设计的开源 ChatGPT/LLMs 聊天应用与开发框架')
+                    },
+                    {
+                      img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/openwebui.svg",
+                      title: "Open WebUI",
+                      desc: t('可扩展、功能丰富且用户友好的自托管WebUI')
+                    },
+                    {
+                      img: "/favicon.ico",
+                      title: t('API服务'),
+                      desc: t('支持多种模型，包括ChatGPT、Claude、Grok、Gemini等大语言模型API调用')
+                    }
+                  ].map((item, index) => (
+                      <Col xs={24} sm={12} lg={6} key={index}>
                         <Card
-                            className="modern-card"
-                            style={{ ...styles.modernCard, ...styles.fadeIn, animationDelay: `${index * 0.1}s` }}
-                            bodyStyle={styles.serviceCard}
+                            className="service-card"
+                            style={{
+                              ...styles.serviceCard,
+                              animationDelay: `${index * 0.2}s`,
+                              ...styles.fadeIn
+                            }}
+                            bodyStyle={{ padding: '24px', textAlign: 'center' }}
                         >
-                          <div className="service-icon" style={styles.serviceIcon}>
-                            {service.icon}
+                          <div style={styles.serviceIcon}>
+                            <img src={item.img} alt={item.title} style={{ width: '100%', height: '100%' }} />
                           </div>
-                          <Typography.Title level={4} style={{ marginBottom: '8px', color: 'var(--semi-color-text-0)' }}>
-                            {service.title}
-                          </Typography.Title>
-                          <Typography.Text type="secondary" style={{ fontSize: '14px', lineHeight: 1.5 }}>
-                            {service.desc}
-                          </Typography.Text>
+                          <Title level={4} style={{ fontSize: '1.4rem', marginBottom: '12px', fontWeight: 400 }}>
+                            {item.title}
+                          </Title>
+                          <Paragraph style={{ color: '#64748b', marginBottom: '16px' }}>
+                            {item.desc}
+                          </Paragraph>
                         </Card>
                       </Col>
                   ))}
@@ -330,176 +287,193 @@ const Home = () => {
               </div>
 
               {/* Models Section */}
-              <div style={{
-                background: 'var(--semi-color-fill-0)',
-                padding: '64px 24px',
-                marginBottom: '64px'
-              }}>
-                <Typography.Title level={2} style={styles.sectionTitle}>
+              <div style={{ background: '#f8fafc', padding: '40px 0', borderRadius: '12px', marginBottom: '64px' }}>
+                <Title level={3} style={styles.sectionTitle}>
                   {t('完美适配众多大语言模型')}
-                </Typography.Title>
-                <Row gutter={[16, 16]} style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                  {models.map((model, index) => (
-                      <Col span={24/7} key={index}>
+                </Title>
+                <Row gutter={[16, 16]} style={{ padding: '0 24px' }}>
+                  {[
+                    { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/openai.svg", title: "ChatGPT" },
+                    { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/claude-color.svg", title: "Claude" },
+                    { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/gemini-color.svg", title: "Gemini" },
+                    { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/grok.svg", title: "Grok" },
+                    { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/deepseek-color.svg", title: "DeepSeek" },
+                    { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/qwen-color.svg", title: "通义千问" },
+                    { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/zhipu-color.svg", title: "智谱GLM" }
+                  ].map((item, index) => (
+                      <Col xs={12} sm={8} md={6} lg={Math.floor(24/7)} key={index}>
                         <Card
-                            className="modern-card"
-                            style={{ ...styles.modernCard, ...styles.fadeIn, animationDelay: `${index * 0.1}s` }}
-                            bodyStyle={styles.modelCard}
+                            className="model-card"
+                            style={{
+                              ...styles.modelCard,
+                              animationDelay: `${index * 0.1}s`,
+                              ...styles.fadeIn
+                            }}
+                            bodyStyle={{ padding: '20px', textAlign: 'center' }}
                         >
-                          <div className="model-icon" style={{ ...styles.modelIcon, fontSize: '2rem' }}>
-                            {model.icon}
+                          <div style={styles.modelIcon}>
+                            <img src={item.img} alt={item.title} style={{ width: '100%', height: '100%' }} />
                           </div>
-                          <Typography.Text style={{ fontSize: '14px', color: 'var(--semi-color-text-1)' }}>
-                            {model.name}
-                          </Typography.Text>
+                          <Text style={{ color: '#64748b', textAlign: 'center' }}>
+                            {item.title}
+                          </Text>
                         </Card>
                       </Col>
                   ))}
                 </Row>
               </div>
 
-              {/* Use Cases Section */}
-              <div style={{ padding: '0 24px', marginBottom: '64px' }}>
-                <Typography.Title level={2} style={styles.sectionTitle}>
+              {/* Uses Section */}
+              <div style={{ marginBottom: '64px' }}>
+                <Title level={3} style={styles.sectionTitle}>
                   {t('大语言模型的主要用途')}
-                </Typography.Title>
+                </Title>
                 <Row gutter={[24, 24]}>
-                  {useCases.map((useCase, index) => (
-                      <Col span={6} key={index}>
+                  {[
+                    { title: t('自然语言处理'), desc: t('文本生成、语言翻译、摘要提取、情感分析等。') },
+                    { title: t('教育辅助'), desc: t('论文写作、作业辅助、知识问答、编程辅助等。') },
+                    { title: t('代码辅助'), desc: t('代码生成、代码补全、代码翻译、代码注释等。') },
+                    { title: t('创意生成'), desc: t('图像生成、音频生成、视频生成、设计生成等。') }
+                  ].map((item, index) => (
+                      <Col xs={24} sm={12} md={6} key={index}>
                         <Card
-                            className="modern-card"
-                            style={{ ...styles.modernCard, ...styles.fadeIn, animationDelay: `${index * 0.15}s` }}
-                            bodyStyle={styles.useCaseCard}
+                            className="use-case-card"
+                            style={{
+                              ...styles.useCaseCard,
+                              animationDelay: `${index * 0.15}s`,
+                              ...styles.fadeIn
+                            }}
+                            bodyStyle={{ padding: '24px', textAlign: 'center' }}
                         >
-                          <div style={{ ...styles.serviceIcon, marginBottom: '16px', fontSize: '2.5rem' }}>
-                            {useCase.icon}
-                          </div>
-                          <Typography.Title level={4} style={{
-                            marginBottom: '12px',
-                            color: 'var(--semi-color-primary)'
-                          }}>
-                            {useCase.title}
-                          </Typography.Title>
-                          <Typography.Text type="secondary" style={{ fontSize: '14px', lineHeight: 1.5 }}>
-                            {useCase.desc}
-                          </Typography.Text>
+                          <Title level={4} style={styles.useCaseTitle}>
+                            {item.title}
+                          </Title>
+                          <Paragraph style={{ color: '#64748b' }}>
+                            {item.desc}
+                          </Paragraph>
                         </Card>
                       </Col>
                   ))}
                 </Row>
               </div>
 
-              {/* System Status Section */}
-              <div style={{ padding: '0 24px' }}>
-                <Typography.Title level={2} style={styles.sectionTitle}>
-                  {t('系统状况')}
-                </Typography.Title>
-                <Row gutter={24}>
+              {/* 系统状况部分 */}
+              <Card
+                  bordered={false}
+                  headerLine={false}
+                  title={t('系统状况')}
+                  bodyStyle={{ padding: '10px 20px' }}
+              >
+                <Row gutter={16}>
                   <Col span={12}>
                     <Card
                         title={t('系统信息')}
-                        style={styles.modernCard}
                         headerExtraContent={
-                          <span style={{ fontSize: '12px', color: 'var(--semi-color-text-2)' }}>
+                          <span
+                              style={{
+                                fontSize: '12px',
+                                color: 'var(--semi-color-text-1)',
+                              }}
+                          >
                       {t('系统信息总览')}
                     </span>
                         }
                     >
-                      <Space direction="vertical" spacing="loose" style={{ width: '100%' }}>
-                        <div>
-                          <Typography.Text strong>{t('名称')}：</Typography.Text>
-                          <Typography.Text>{statusState?.status?.system_name}</Typography.Text>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('版本')}：</Typography.Text>
-                          <Typography.Text>
-                            {statusState?.status?.version ? statusState?.status?.version : 'unknown'}
-                          </Typography.Text>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('源码')}：</Typography.Text>
-                          <Typography.Link
-                              href='https://github.com/Calcium-Ion/new-api'
-                              target='_blank'
-                          >
-                            https://github.com/Calcium-Ion/new-api
-                          </Typography.Link>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('协议')}：</Typography.Text>
-                          <Typography.Link
-                              href='https://www.apache.org/licenses/LICENSE-2.0'
-                              target='_blank'
-                          >
-                            Apache-2.0 License
-                          </Typography.Link>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('启动时间')}：</Typography.Text>
-                          <Typography.Text>{getStartTimeString()}</Typography.Text>
-                        </div>
-                      </Space>
+                      <p>
+                        {t('名称')}：{statusState?.status?.system_name}
+                      </p>
+                      <p>
+                        {t('版本')}：
+                        {statusState?.status?.version
+                            ? statusState?.status?.version
+                            : 'unknown'}
+                      </p>
+                      <p>
+                        {t('源码')}：
+                        <a
+                            href='https://github.com/Calcium-Ion/new-api'
+                            target='_blank'
+                            rel='noreferrer'
+                        >
+                          https://github.com/Calcium-Ion/new-api
+                        </a>
+                      </p>
+                      <p>
+                        {t('协议')}：
+                        <a
+                            href='https://www.apache.org/licenses/LICENSE-2.0'
+                            target='_blank'
+                            rel='noreferrer'
+                        >
+                          Apache-2.0 License
+                        </a>
+                      </p>
+                      <p>
+                        {t('启动时间')}：{getStartTimeString()}
+                      </p>
                     </Card>
                   </Col>
                   <Col span={12}>
                     <Card
                         title={t('系统配置')}
-                        style={styles.modernCard}
                         headerExtraContent={
-                          <span style={{ fontSize: '12px', color: 'var(--semi-color-text-2)' }}>
+                          <span
+                              style={{
+                                fontSize: '12px',
+                                color: 'var(--semi-color-text-1)',
+                              }}
+                          >
                       {t('系统配置总览')}
                     </span>
                         }
                     >
-                      <Space direction="vertical" spacing="loose" style={{ width: '100%' }}>
-                        <div>
-                          <Typography.Text strong>{t('邮箱验证')}：</Typography.Text>
-                          <Typography.Text type={statusState?.status?.email_verification === true ? 'success' : 'tertiary'}>
-                            {statusState?.status?.email_verification === true ? t('已启用') : t('未启用')}
-                          </Typography.Text>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('GitHub 身份验证')}：</Typography.Text>
-                          <Typography.Text type={statusState?.status?.github_oauth === true ? 'success' : 'tertiary'}>
-                            {statusState?.status?.github_oauth === true ? t('已启用') : t('未启用')}
-                          </Typography.Text>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('OIDC 身份验证')}：</Typography.Text>
-                          <Typography.Text type={statusState?.status?.oidc_enabled === true ? 'success' : 'tertiary'}>
-                            {statusState?.status?.oidc_enabled === true ? t('已启用') : t('未启用')}
-                          </Typography.Text>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('微信身份验证')}：</Typography.Text>
-                          <Typography.Text type={statusState?.status?.wechat_login === true ? 'success' : 'tertiary'}>
-                            {statusState?.status?.wechat_login === true ? t('已启用') : t('未启用')}
-                          </Typography.Text>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('Turnstile 用户校验')}：</Typography.Text>
-                          <Typography.Text type={statusState?.status?.turnstile_check === true ? 'success' : 'tertiary'}>
-                            {statusState?.status?.turnstile_check === true ? t('已启用') : t('未启用')}
-                          </Typography.Text>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('Telegram 身份验证')}：</Typography.Text>
-                          <Typography.Text type={statusState?.status?.telegram_oauth === true ? 'success' : 'tertiary'}>
-                            {statusState?.status?.telegram_oauth === true ? t('已启用') : t('未启用')}
-                          </Typography.Text>
-                        </div>
-                        <div>
-                          <Typography.Text strong>{t('Linux DO 身份验证')}：</Typography.Text>
-                          <Typography.Text type={statusState?.status?.linuxdo_oauth === true ? 'success' : 'tertiary'}>
-                            {statusState?.status?.linuxdo_oauth === true ? t('已启用') : t('未启用')}
-                          </Typography.Text>
-                        </div>
-                      </Space>
+                      <p>
+                        {t('邮箱验证')}：
+                        {statusState?.status?.email_verification === true
+                            ? t('已启用')
+                            : t('未启用')}
+                      </p>
+                      <p>
+                        {t('GitHub 身份验证')}：
+                        {statusState?.status?.github_oauth === true
+                            ? t('已启用')
+                            : t('未启用')}
+                      </p>
+                      <p>
+                        {t('OIDC 身份验证')}：
+                        {statusState?.status?.oidc_enabled === true
+                            ? t('已启用')
+                            : t('未启用')}
+                      </p>
+                      <p>
+                        {t('微信身份验证')}：
+                        {statusState?.status?.wechat_login === true
+                            ? t('已启用')
+                            : t('未启用')}
+                      </p>
+                      <p>
+                        {t('Turnstile 用户校验')}：
+                        {statusState?.status?.turnstile_check === true
+                            ? t('已启用')
+                            : t('未启用')}
+                      </p>
+                      <p>
+                        {t('Telegram 身份验证')}：
+                        {statusState?.status?.telegram_oauth === true
+                            ? t('已启用')
+                            : t('未启用')}
+                      </p>
+                      <p>
+                        {t('Linux DO 身份验证')}：
+                        {statusState?.status?.linuxdo_oauth === true
+                            ? t('已启用')
+                            : t('未启用')}
+                      </p>
                     </Card>
                   </Col>
                 </Row>
-              </div>
-            </>
+              </Card>
+            </div>
         ) : (
             <>
               {homePageContent.startsWith('https://') ? (
@@ -509,13 +483,13 @@ const Home = () => {
                   />
               ) : (
                   <div
-                      style={{ fontSize: 'larger', padding: '24px' }}
+                      style={{ fontSize: 'larger' }}
                       dangerouslySetInnerHTML={{ __html: homePageContent }}
                   ></div>
               )}
             </>
         )}
-      </div>
+      </>
   );
 };
 
