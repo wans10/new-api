@@ -18,31 +18,10 @@ const FooterBar = () => {
     }
   };
 
-  const defaultFooter = (
-    <div className='custom-footer'>
-      <a
-        href='https://github.com/Calcium-Ion/new-api'
-        target='_blank'
-        rel='noreferrer'
-      >
-        New API {import.meta.env.VITE_REACT_APP_VERSION}{' '}
-      </a>
-      {t('由')}{' '}
-      <a href='https://github.com/Calcium-Ion' target='_blank' rel='noreferrer'>
-        Calcium-Ion
-      </a>{' '}
-      {t('开发，基于')}{' '}
-      <a
-        href='https://github.com/songquanpeng/one-api'
-        target='_blank'
-        rel='noreferrer'
-      >
-        One API
-      </a>
-    </div>
-  );
+  const defaultFooter = '© 2025 llmhub.com.cn 版权所有  <a href="https://beian.miit.gov.cn/" target="_blank">津ICP备2025029271号-1</a>  <img src="https://beian.mps.gov.cn/img/logo01.dd7ff50e.png" width="20"/> <a href="https://beian.mps.gov.cn/#/query/webSearch?code=33010902004083" rel="noreferrer" target="_blank">浙公网安备33010902004083号</a>';
 
-  useEffect(() => {
+
+    useEffect(() => {
     const timer = setInterval(() => {
       if (remainCheckTimes <= 0) {
         clearInterval(timer);
