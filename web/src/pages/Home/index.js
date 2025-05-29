@@ -254,7 +254,12 @@ const Home = () => {
           .model-title {
             color: var(--semi-color-text-1);
             font-size: 14px;
+            transition: transform 0.3s ease;
           }
+          
+          .model-card:hover .model-title {
+            transform: scale(1.1);
+          }          
           
           .uses-card {
             height: 100%;
@@ -277,12 +282,24 @@ const Home = () => {
             font-weight: 400;
             color: #0078d7;
             text-align: center;
+            transition: transform 0.3s ease;
           }
+          
+          .uses-card:hover .uses-title{
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          }          
           
           .uses-desc {
             color: var(--semi-color-text-1);
             text-align: center;
+            transition: transform 0.3s ease;
           }
+          
+          .uses-card:hover .uses-desc{
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          }                    
           
           .container {
             max-width: 1200px;
