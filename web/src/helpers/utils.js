@@ -21,11 +21,11 @@ export function isRoot() {
   return user.role >= 100;
 }
 
-export function getSystemName() {
+/*export function getSystemName() {
   let system_name = localStorage.getItem('system_name');
   if (!system_name) return 'New API';
   return system_name;
-}
+}*/
 
 export function getLogo() {
   let logo = localStorage.getItem('logo');
