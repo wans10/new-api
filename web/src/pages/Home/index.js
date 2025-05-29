@@ -151,13 +151,15 @@ const Home = () => {
           }
           
           .service-card {
-            height: 100%;
+            height: 280px;
             border-radius: 12px;
             background: #f8fafc;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             cursor: pointer;
             animation: fadeIn 0.6s ease-out forwards;
+            display: flex;
+            flex-direction: column;
           }
           
           .service-card:hover {
@@ -171,6 +173,7 @@ const Home = () => {
             height: 100%;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
           }
           
           .service-icon {
@@ -189,12 +192,21 @@ const Home = () => {
             margin-bottom: 12px;
             font-weight: 400;
             color: var(--semi-color-text-0);
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
           
           .service-desc {
             color: var(--semi-color-text-1);
             margin-bottom: 16px;
             flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.5;
           }
           
           .models-section {
@@ -301,7 +313,7 @@ const Home = () => {
                 <h3 className="section-title">
                     {t('支持的开源项目')}
                 </h3>
-                <Row gutter={[24, 24]}>
+                <Row gutter={[24, 24]} type="flex">
                     {[
                         {
                             img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/cline.svg",
@@ -348,15 +360,17 @@ const Home = () => {
                             link: "https://www.llmhub.net/token"
                         }
                     ].map((item, index) => (
-                        <Col xs={24} sm={12} lg={6} key={index}>
+                        <Col xs={24} sm={12} lg={6} key={index} style={{ display: 'flex' }}>
                             <div
                                 className="service-card"
-                                style={{ animationDelay: `${index * 0.2}s` }}
+                                style={{ animationDelay: `${index * 0.2}s`, width: '100%' }}
                                 onClick={() => item.link && window.open(item.link, '_blank')}
                             >
                                 <div className="service-card-content">
-                                    <img src={item.img} alt={item.title} className="service-icon" />
-                                    <div className="service-title">{item.title}</div>
+                                    <div>
+                                        <img src={item.img} alt={item.title} className="service-icon" />
+                                        <div className="service-title">{item.title}</div>
+                                    </div>
                                     <div className="service-desc">{item.desc}</div>
                                 </div>
                             </div>
@@ -371,7 +385,7 @@ const Home = () => {
                     <h3 className="section-title">
                         {t('完美适配众多大语言模型')}
                     </h3>
-                    <Row gutter={[16, 16]}>
+<Row gutter={[16, 16]} justify="center">
                         {[
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/openai.svg", title: "ChatGPT", link: "https://openai.com" },
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/claude-color.svg", title: "Claude", link: "https://www.anthropic.com" },
@@ -381,7 +395,7 @@ const Home = () => {
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/qwen-color.svg", title: "通义千问", link: "https://www.aliyun.com/product/bailian" },
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/zhipu-color.svg", title: "智谱GLM", link: "https://www.zhipuai.cn" }
                         ].map((item, index) => (
-                            <Col xs={12} sm={8} md={6} lg={Math.floor(24/7)} key={index}>
+                            <Col xs={8} sm={6} md={4} lg={3} xl={3} key={index}>
                                 <div
                                     className="model-card"
                                     style={{ animationDelay: `${index * 0.1}s` }}
