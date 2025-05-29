@@ -286,8 +286,7 @@ const Home = () => {
           }
           
           .uses-card:hover .uses-title{
-            transform: translateY(-5px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: scale(1.1);
           }          
           
           .uses-desc {
@@ -297,8 +296,7 @@ const Home = () => {
           }
           
           .uses-card:hover .uses-desc{
-            transform: translateY(-5px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: scale(1.1);
           }                    
           
           .container {
