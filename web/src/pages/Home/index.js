@@ -156,7 +156,6 @@ const Home = () => {
             background: #f8fafc;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
-            cursor: pointer;
             animation: fadeIn 0.6s ease-out forwards;
             display: flex;
             flex-direction: column;
@@ -179,7 +178,7 @@ const Home = () => {
           .service-icon {
             width: 80px;
             height: 80px;
-            margin: 0 auto 20px;
+            margin: 0 auto 18px;
             transition: transform 0.3s ease;
           }
           
@@ -189,7 +188,7 @@ const Home = () => {
           
           .service-title {
             font-size: 1.4rem;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-weight: 400;
             color: var(--semi-color-text-0);
             min-height: 48px;
@@ -200,7 +199,7 @@ const Home = () => {
           
           .service-desc {
             color: var(--semi-color-text-1);
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             flex-grow: 1;
             display: flex;
             align-items: center;
