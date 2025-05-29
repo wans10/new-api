@@ -356,7 +356,7 @@ const Home = () => {
                         {
                             img: "/favicon.ico",
                             title: t('API服务'),
-                            desc: t('支持多种模型，包括ChatGPT、Claude、Grok、Gemini等大语言模型API调用'),
+                            desc: t('支持 ChatGPT、Claude、Grok、Gemini 等大语言模型API调用'),
                             link: "https://www.llmhub.net/token"
                         }
                     ].map((item, index) => (
