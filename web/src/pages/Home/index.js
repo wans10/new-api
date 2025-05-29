@@ -393,6 +393,7 @@ const Home = () => {
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/grok.svg", title: "Grok", link: "https://x.ai" },
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/deepseek-color.svg", title: "DeepSeek", link: "https://www.deepseek.com" },
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/qwen-color.svg", title: "通义千问", link: "https://www.aliyun.com/product/bailian" },
+                            { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/doubao-color.svg", title: "豆包", link: "https://www.volcengine.com/product/doubao" },
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/zhipu-color.svg", title: "智谱GLM", link: "https://www.zhipuai.cn" }
                         ].map((item, index) => (
                             <Col xs={12} sm={8} md={6} lg={Math.floor(24/7)} key={index}>
