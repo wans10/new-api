@@ -152,7 +152,7 @@ const Home = () => {
           
           .service-card {
             height: 240px;
-            border-radius: 12px;
+            border-radius: 16px;
             background: #f8fafc;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
@@ -178,7 +178,7 @@ const Home = () => {
           .service-icon {
             width: 80px;
             height: 80px;
-            margin: 0 auto 18px;
+            margin: 0 auto 16px;
             transition: transform 0.3s ease;
           }
           
@@ -195,7 +195,12 @@ const Home = () => {
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: transform 0.3s ease;
           }
+          
+          .service-card:hover .service-title {
+            transform: scale(1.1);
+          }          
           
           .service-desc {
             color: var(--semi-color-text-1);
@@ -206,7 +211,12 @@ const Home = () => {
             justify-content: center;
             text-align: center;
             line-height: 1.5;
+            transition: transform 0.3s ease;
           }
+          
+          .service-card:hover .service-desc {
+            transform: scale(1.1);
+          }              
           
           .models-section {
             background: #f8fafc;
@@ -222,6 +232,7 @@ const Home = () => {
             text-align: center;
             height: 100%;
             animation: fadeIn 0.6s ease-out forwards;
+            cursor: pointer; /* 将光标变为指针，表示卡片可点击 */
           }
           
           .model-card:hover {
