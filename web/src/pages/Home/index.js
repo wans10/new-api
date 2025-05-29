@@ -396,7 +396,7 @@ const Home = () => {
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/doubao-color.svg", title: "豆包", link: "https://www.volcengine.com/product/doubao" },
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/zhipu-color.svg", title: "智谱GLM", link: "https://www.zhipuai.cn" }
                         ].map((item, index) => (
-                            <Col xs={12} sm={8} md={6} lg={Math.floor(24/7)} key={index}>
+                            <Col xs={12} sm={8} md={6} lg={Math.floor(24/8)} key={index}>
                                 <div
                                     className="model-card"
                                     style={{ animationDelay: `${index * 0.1}s` }}
