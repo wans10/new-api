@@ -151,7 +151,7 @@ const Home = () => {
           }
           
           .service-card {
-            height: 280px;
+            height: 260px;
             border-radius: 12px;
             background: #f8fafc;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
