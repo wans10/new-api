@@ -248,12 +248,12 @@ const SiderBar = () => {
 
   const chatMenuItems = useMemo(
     () => [
-/*      {
+      {
         text: 'Playground',
         itemKey: 'playground',
         to: '/playground',
         icon: <IconCommentStroked />,
-      },*/
+      },
       {
         text: t('聊天'),
         itemKey: 'chat',
