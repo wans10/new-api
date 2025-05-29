@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/User';
-import { useSetTheme, useTheme } from '../context/Theme';
+// import { useSetTheme, useTheme } from '../context/Theme';
 import { useTranslation } from 'react-i18next';
 
 import { API, getLogo, getSystemName, isMobile, showSuccess } from '../helpers';
@@ -185,10 +185,10 @@ const HeaderBar = () => {
     }, 3000);
   };
 
-  const theme = useTheme();
-  const setTheme = useSetTheme();
+/*  const theme = useTheme();
+  const setTheme = useSetTheme();*/
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (theme === 'dark') {
       document.body.setAttribute('theme-mode', 'dark');
     } else {
@@ -203,7 +203,7 @@ const HeaderBar = () => {
     if (isNewYear) {
       console.log('Happy New Year!');
     }
-  }, [theme]);
+  }, [theme]);*/
 
   useEffect(() => {
     const handleLanguageChanged = (lng) => {
@@ -402,7 +402,7 @@ const HeaderBar = () => {
                 )}
                 {/* <Nav.Item itemKey={'about'} icon={<IconHelpCircle />} /> */}
                 <>
-                  <Switch
+{/*                  <Switch
                     checkedText='🌞'
                     size={styleState.isMobile ? 'default' : 'large'}
                     checked={theme === 'dark'}
@@ -411,7 +411,7 @@ const HeaderBar = () => {
                     onChange={(checked) => {
                       setTheme(checked);
                     }}
-                  />
+                  />*/}
                 </>
                 <Dropdown
                   position='bottomRight'
