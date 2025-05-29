@@ -72,7 +72,7 @@ const logoStyle = {
 };
 
 // 自定义顶部栏系统名称样式
-const systemNameStyle = {
+/*const systemNameStyle = {
   fontWeight: 'bold',
   fontSize: '18px',
   background:
@@ -80,7 +80,7 @@ const systemNameStyle = {
   WebkitBackgroundClip: 'text',
   WebkitTextFillColor: 'transparent',
   padding: '0 5px',
-};
+};*/
 
 // 自定义顶部栏按钮图标样式
 const headerIconStyle = {
