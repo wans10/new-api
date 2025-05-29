@@ -408,7 +408,7 @@ const Home = () => {
             <div className="models-section">
                 <div className="container">
                     <h3 className="section-title">
-                        {t('完美适配众多大语言模型')}
+                        {t('适配众多大语言模型')}
                     </h3>
                     <Row gutter={[16, 16]}>
                         {[
