@@ -385,7 +385,7 @@ const Home = () => {
                     <h3 className="section-title">
                         {t('完美适配众多大语言模型')}
                     </h3>
-<Row gutter={[16, 16]} justify="center">
+                    <Row gutter={[24, 24]} type="flex" justify="space-between">
                         {[
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/openai.svg", title: "ChatGPT", link: "https://openai.com" },
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/claude-color.svg", title: "Claude", link: "https://www.anthropic.com" },
@@ -395,7 +395,7 @@ const Home = () => {
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/qwen-color.svg", title: "通义千问", link: "https://www.aliyun.com/product/bailian" },
                             { img: "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/zhipu-color.svg", title: "智谱GLM", link: "https://www.zhipuai.cn" }
                         ].map((item, index) => (
-                            <Col xs={8} sm={6} md={4} lg={3} xl={3} key={index}>
+                            <Col flex="1" style={{ minWidth: '120px', maxWidth: '160px' }} key={index}>
                                 <div
                                     className="model-card"
                                     style={{ animationDelay: `${index * 0.1}s` }}
