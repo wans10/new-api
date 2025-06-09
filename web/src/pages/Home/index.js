@@ -91,13 +91,13 @@ const Home = () => {
               <div className="flex-shrink-0 w-full md:w-[480px] md:mr-[60px] lg:mr-[120px] mb-8 md:mb-0">
                 <div className="flex items-center gap-2 justify-center md:justify-start">
                   <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-semi-color-text-0 w-auto leading-normal md:leading-[67px]">
-                    {statusState?.status?.system_name || 'New API'}
+                    {statusState?.status?.system_name || 'LLM Hub'}
                   </h1>
-                  {statusState?.status?.version && (
+                  {/*{statusState?.status?.version && (
                     <Tag color='light-blue' size='large' shape='circle' className="ml-1">
                       {statusState.status.version}
                     </Tag>
-                  )}
+                  )}*/}
                 </div>
                 <p className="text-base md:text-lg text-semi-color-text-0 mt-4 md:mt-8 w-full md:w-[480px] leading-7 md:leading-8 text-center md:text-left">
                   {t('新一代大模型网关与AI资产管理系统，一键接入主流大模型，轻松管理您的AI资产')}
