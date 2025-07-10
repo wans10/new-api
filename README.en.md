@@ -5,7 +5,7 @@
 
 ![new-api](/web/public/logo.png)
 
-# New API
+# LLM Hub
 
 🍥 Next-Generation Large Model Gateway and AI Asset Management System
 
@@ -49,7 +49,7 @@ You can also access the AI-generated DeepWiki:
 
 ## ✨ Key Features
 
-New API offers a wide range of features, please refer to [Features Introduction](https://docs.newapi.pro/wiki/features-introduction) for details:
+LLM Hub offers a wide range of features, please refer to [Features Introduction](https://docs.newapi.pro/wiki/features-introduction) for details:
 
 1. 🎨 Brand new UI interface
 2. 🌍 Multi-language support
@@ -178,9 +178,9 @@ For detailed API documentation, please refer to [API Documentation](https://docs
 - [chatnio](https://github.com/Deeptrain-Community/chatnio): Next-generation AI one-stop B/C-end solution
 - [neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool): Query usage quota with key
 
-Other projects based on New API:
-- [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon): High-performance optimized version of New API
-- [VoAPI](https://github.com/VoAPI/VoAPI): Frontend beautified version based on New API
+Other projects based on LLM Hub:
+- [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon): High-performance optimized version of LLM Hub
+- [VoAPI](https://github.com/VoAPI/VoAPI): Frontend beautified version based on LLM Hub
 
 ## Help and Support
 

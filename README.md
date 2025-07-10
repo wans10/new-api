@@ -5,7 +5,7 @@
 
 ![new-api](/web/public/logo.png)
 
-# New API
+# LLM Hub
 
 🍥新一代大模型网关与AI资产管理系统
 
@@ -49,7 +49,7 @@
 
 ## ✨ 主要特性
 
-New API提供了丰富的功能，详细特性请参考[特性说明](https://docs.newapi.pro/wiki/features-introduction)：
+LLM Hub提供了丰富的功能，详细特性请参考[特性说明](https://docs.newapi.pro/wiki/features-introduction)：
 
 1. 🎨 全新的UI界面
 2. 🌍 多语言支持
@@ -178,8 +178,8 @@ docker run --name new-api -d --restart always -p 3000:3000 -e SQL_DSN="root:1234
 - [chatnio](https://github.com/Deeptrain-Community/chatnio)：下一代AI一站式B/C端解决方案
 - [neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool)：用key查询使用额度
 
-其他基于New API的项目：
-- [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon)：New API高性能优化版
+其他基于LLM Hub的项目：
+- [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon)：LLM Hub高性能优化版
 
 ## 帮助支持
 
