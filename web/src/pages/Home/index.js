@@ -56,7 +56,8 @@ const Home = () => {
   };
 
   const handleCopyBaseURL = async () => {
-    const ok = await copy(serverAddress);
+    const fullUrl = `${serverAddress}${endpointItems[endpointIndex]?.value || ''}`;
+    const ok = await copy(fullUrl);
     if (ok) {
       showSuccess(t('已复制到剪切板'));
     }
@@ -131,20 +132,27 @@ const Home = () => {
                       <div className="flex flex-col items-center justify-center gap-3 w-full mt-4 md:mt-6 max-w-xs sm:max-w-sm md:max-w-md">
                         <Input
                             readonly
-                            value={serverAddress}
+                            value={`${serverAddress}${endpointItems[endpointIndex]?.value || ''}`}
                             className="flex-1 !rounded-full w-full"
                             size={isMobile() ? 'default' : 'large'}
                             suffix={
                               <div className="flex items-center gap-2">
-                                <ScrollList bodyHeight={32} style={{ border: 'unset', boxShadow: 'unset' }}>
-                                  <ScrollItem
-                                      mode="wheel"
-                                      cycled={true}
-                                      list={endpointItems}
-                                      selectedIndex={endpointIndex}
-                                      onSelect={({ index }) => setEndpointIndex(index)}
-                                  />
-                                </ScrollList>
+                                {/* 移动端显示当前端点，桌面端显示轮播 */}
+                                {isMobile() ? (
+                                    <div className="flex items-center justify-center min-w-[60px] h-8 px-2 bg-semi-color-fill-0 rounded text-xs text-semi-color-text-1 font-mono">
+                                      {endpointItems[endpointIndex]?.value || ''}
+                                    </div>
+                                ) : (
+                                    <ScrollList bodyHeight={32} style={{ border: 'unset', boxShadow: 'unset' }}>
+                                      <ScrollItem
+                                          mode="wheel"
+                                          cycled={true}
+                                          list={endpointItems}
+                                          selectedIndex={endpointIndex}
+                                          onSelect={({ index }) => setEndpointIndex(index)}
+                                      />
+                                    </ScrollList>
+                                )}
                                 <Button
                                     type="primary"
                                     onClick={handleCopyBaseURL}
@@ -154,6 +162,35 @@ const Home = () => {
                               </div>
                             }
                         />
+                        {/* 移动端显示端点切换按钮 */}
+                        {isMobile() && (
+                            <div className="flex items-center gap-2">
+                              <Button
+                                  size="small"
+                                  onClick={() => setEndpointIndex((prev) => (prev - 1 + endpointItems.length) % endpointItems.length)}
+                                  className="!rounded-full min-w-[36px] min-h-[36px]"
+                              >
+                                ←
+                              </Button>
+                              <div className="flex items-center gap-1">
+                                {endpointItems.map((_, index) => (
+                                    <div
+                                        key={index}
+                                        className={`w-2 h-2 rounded-full transition-colors ${
+                                            index === endpointIndex ? 'bg-semi-color-primary' : 'bg-semi-color-fill-2'
+                                        }`}
+                                    />
+                                ))}
+                              </div>
+                              <Button
+                                  size="small"
+                                  onClick={() => setEndpointIndex((prev) => (prev + 1) % endpointItems.length)}
+                                  className="!rounded-full min-w-[36px] min-h-[36px]"
+                              >
+                                →
+                              </Button>
+                            </div>
+                        )}
                       </div>
                     </div>
 
