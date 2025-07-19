@@ -194,13 +194,14 @@ func FetchUpstreamModels(c *gin.Context) {
 		url = fmt.Sprintf("%s/compatible-mode/v1/models", baseURL)
 	}
 
-	var headers map[string]string
+	// Create headers based on channel type
+	headers := make(map[string]string)
 	if channel.Type == constant.ChannelTypeAnthropic {
-		headers = map[string]string{
-			"x-api-key":         channel.Key,
-			"anthropic-version": "2023-06-01",
-		}
+		// Anthropic uses x-api-key header
+		headers["x-api-key"] = channel.Key
+		headers["anthropic-version"] = "2023-06-01"
 	} else {
+		// Other providers use Authorization Bearer
 		headers = GetAuthHeader(channel.Key)
 	}
 
@@ -718,7 +719,16 @@ func FetchModels(c *gin.Context) {
 	key := strings.TrimSpace(req.Key)
 	// If the key contains a line break, only take the first part.
 	key = strings.Split(key, "\n")[0]
-	request.Header.Set("Authorization", "Bearer "+key)
+
+	// Set authentication headers based on channel type
+	if req.Type == constant.ChannelTypeAnthropic {
+		// Anthropic uses x-api-key header
+		request.Header.Set("x-api-key", key)
+		request.Header.Set("anthropic-version", "2023-06-01")
+	} else {
+		// Other providers use Authorization Bearer
+		request.Header.Set("Authorization", "Bearer "+key)
+	}
 
 	response, err := client.Do(request)
 	if err != nil {
