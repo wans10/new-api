@@ -195,11 +195,12 @@ func FetchUpstreamModels(c *gin.Context) {
 	}
 
 	// Create headers based on channel type
-	headers := make(map[string]string)
+	var headers http.Header
 	if channel.Type == constant.ChannelTypeAnthropic {
 		// Anthropic uses x-api-key header
-		headers["x-api-key"] = channel.Key
-		headers["anthropic-version"] = "2023-06-01"
+		headers = make(http.Header)
+		headers.Set("x-api-key", channel.Key)
+		headers.Set("anthropic-version", "2023-06-01")
 	} else {
 		// Other providers use Authorization Bearer
 		headers = GetAuthHeader(channel.Key)
