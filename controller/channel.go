@@ -193,7 +193,18 @@ func FetchUpstreamModels(c *gin.Context) {
 	case constant.ChannelTypeAli:
 		url = fmt.Sprintf("%s/compatible-mode/v1/models", baseURL)
 	}
-	body, err := GetResponseBody("GET", url, channel, GetAuthHeader(channel.Key))
+
+	var headers map[string]string
+	if channel.Type == constant.ChannelTypeAnthropic {
+		headers = map[string]string{
+			"x-api-key":         channel.Key,
+			"anthropic-version": "2023-06-01",
+		}
+	} else {
+		headers = GetAuthHeader(channel.Key)
+	}
+
+	body, err := GetResponseBody("GET", url, channel, headers)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
