@@ -8,6 +8,7 @@ import (
 	"one-api/common"
 	"one-api/constant"
 	"one-api/model"
+	"one-api/service"
 	"strconv"
 	"strings"
 
@@ -37,25 +38,23 @@ type OpenAIModel struct {
 	Parent string `json:"parent"`
 }
 
-type OpenAIModelsResponse struct {
-	Data    []OpenAIModel `json:"data"`
-	Success bool          `json:"success"`
-}
-
-// AnthropicModel 定义Anthropic API返回的模型结构
 type AnthropicModel struct {
 	ID          string `json:"id"`
-	CreatedAt   string `json:"created_at"`
 	DisplayName string `json:"display_name"`
 	Type        string `json:"type"`
+	CreatedAt   string `json:"created_at"`
 }
 
-// AnthropicModelsResponse 定义Anthropic API响应结构
 type AnthropicModelsResponse struct {
 	Data    []AnthropicModel `json:"data"`
 	FirstID string           `json:"first_id"`
 	HasMore bool             `json:"has_more"`
 	LastID  string           `json:"last_id"`
+}
+
+type OpenAIModelsResponse struct {
+	Data    []OpenAIModel `json:"data"`
+	Success bool          `json:"success"`
 }
 
 func parseStatusFilter(statusParam string) int {
@@ -179,77 +178,6 @@ func GetAllChannels(c *gin.Context) {
 	return
 }
 
-func getChannelBaseURL(channelType int, customURL string) string {
-	if customURL != "" {
-		return customURL
-	}
-
-	if channelType >= 0 && channelType < len(constant.ChannelBaseURLs) {
-		return constant.ChannelBaseURLs[channelType]
-	}
-
-	return "" // 返回空字符串，让调用方处理
-}
-
-// 构建API端点URL
-func buildModelsURL(channelType int, baseURL string) string {
-	switch channelType {
-	case constant.ChannelTypeGemini:
-		return fmt.Sprintf("%s/v1beta/openai/models", baseURL)
-	case constant.ChannelTypeAli:
-		return fmt.Sprintf("%s/compatible-mode/v1/models", baseURL)
-	default:
-		return fmt.Sprintf("%s/v1/models", baseURL)
-	}
-}
-
-// 获取认证头
-func getAuthHeaders(channel *model.Channel) http.Header {
-	switch channel.Type {
-	case constant.ChannelTypeAnthropic:
-		headers := make(http.Header)
-		headers.Set("x-api-key", strings.TrimSpace(channel.Key))
-		headers.Set("anthropic-version", "2023-06-01")
-		headers.Set("Content-Type", "application/json")
-		return headers
-	default:
-		return GetAuthHeader(channel.Key)
-	}
-}
-
-// 解析不同类型的模型响应
-func parseModelsResponse(channelType int, body []byte) ([]string, error) {
-	var ids []string
-
-	switch channelType {
-	case constant.ChannelTypeAnthropic:
-		var anthropicResult AnthropicModelsResponse
-		if err := json.Unmarshal(body, &anthropicResult); err != nil {
-			return nil, fmt.Errorf("解析Anthropic响应失败: %s", err.Error())
-		}
-
-		for _, model := range anthropicResult.Data {
-			ids = append(ids, model.ID)
-		}
-
-	default:
-		var result OpenAIModelsResponse
-		if err := json.Unmarshal(body, &result); err != nil {
-			return nil, fmt.Errorf("解析OpenAI格式响应失败: %s", err.Error())
-		}
-
-		for _, model := range result.Data {
-			id := model.ID
-			if channelType == constant.ChannelTypeGemini {
-				id = strings.TrimPrefix(id, "models/")
-			}
-			ids = append(ids, id)
-		}
-	}
-
-	return ids, nil
-}
-
 func FetchUpstreamModels(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -263,40 +191,73 @@ func FetchUpstreamModels(c *gin.Context) {
 		return
 	}
 
-	// 安全获取基础URL
-	baseURL := getChannelBaseURL(channel.Type, channel.GetBaseURL())
-	if baseURL == "" {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": fmt.Sprintf("不支持的渠道类型: %d", channel.Type),
-		})
+	baseURL := constant.ChannelBaseURLs[channel.Type]
+	if channel.GetBaseURL() != "" {
+		baseURL = channel.GetBaseURL()
+	}
+
+	var url string
+	switch channel.Type {
+	case constant.ChannelTypeGemini:
+		// curl https://example.com/v1beta/models?key=$GEMINI_API_KEY
+		url = fmt.Sprintf("%s/v1beta/openai/models", baseURL) // Remove key in url since we need to use AuthHeader
+	case constant.ChannelTypeAli:
+		url = fmt.Sprintf("%s/compatible-mode/v1/models", baseURL)
+	default:
+		url = fmt.Sprintf("%s/v1/models", baseURL)
+	}
+
+	// 获取响应体 - 根据渠道类型决定是否添加 AuthHeader
+	var body []byte
+	key := strings.Split(channel.Key, "\n")[0]
+
+	// 针对不同渠道类型使用不同的请求头
+	switch channel.Type {
+	case constant.ChannelTypeAnthropic:
+		body, err = GetResponseBody("GET", url, channel, GetAnthropicAuthHeader(key))
+	default:
+		body, err = GetResponseBody("GET", url, channel, GetAuthHeader(key))
+	}
+
+	if err != nil {
+		common.ApiError(c, err)
 		return
 	}
 
-	// 构建请求URL
-	url := buildModelsURL(channel.Type, baseURL)
+	var ids []string
 
-	// 获取认证头
-	headers := getAuthHeaders(channel)
+	// 针对不同渠道类型解析响应
+	switch channel.Type {
+	case constant.ChannelTypeAnthropic:
+		var result AnthropicModelsResponse
+		if err = json.Unmarshal(body, &result); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": fmt.Sprintf("解析响应失败: %s", err.Error()),
+			})
+			return
+		}
 
-	// 发起请求
-	body, err := GetResponseBody("GET", url, channel, headers)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": fmt.Sprintf("请求失败: %s", err.Error()),
-		})
-		return
-	}
+		for _, model := range result.Data {
+			ids = append(ids, model.ID)
+		}
+	default:
+		var result OpenAIModelsResponse
+		if err = json.Unmarshal(body, &result); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": fmt.Sprintf("解析响应失败: %s", err.Error()),
+			})
+			return
+		}
 
-	// 解析响应
-	ids, err := parseModelsResponse(channel.Type, body)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
+		for _, model := range result.Data {
+			id := model.ID
+			if channel.Type == constant.ChannelTypeGemini {
+				id = strings.TrimPrefix(id, "models/")
+			}
+			ids = append(ids, id)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -304,6 +265,13 @@ func FetchUpstreamModels(c *gin.Context) {
 		"message": "",
 		"data":    ids,
 	})
+}
+
+func GetAnthropicAuthHeader(token string) http.Header {
+	h := http.Header{}
+	h.Add("x-api-key", token)
+	h.Add("anthropic-version", "2023-06-01")
+	return h
 }
 
 func FixChannelsAbilities(c *gin.Context) {
@@ -906,24 +874,14 @@ func FetchModels(c *gin.Context) {
 		return
 	}
 
-	// 获取基础URL
 	baseURL := req.BaseURL
 	if baseURL == "" {
-		if req.Type >= 0 && req.Type < len(constant.ChannelBaseURLs) {
-			baseURL = constant.ChannelBaseURLs[req.Type]
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"message": "Unsupported channel type",
-			})
-			return
-		}
+		baseURL = constant.ChannelBaseURLs[req.Type]
 	}
 
-	// 构建请求URL（复用现有逻辑）
-	url := buildModelsURL(req.Type, baseURL)
+	client := &http.Client{}
+	url := fmt.Sprintf("%s/v1/models", baseURL)
 
-	// 创建HTTP请求
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -933,21 +891,19 @@ func FetchModels(c *gin.Context) {
 		return
 	}
 
-	// 设置认证头（可以复用现有的逻辑）
-	// Create a temporary channel object for header generation
-	tempChannel := &model.Channel{
-		Type: req.Type,
-		Key:  strings.TrimSpace(strings.Split(req.Key, "\n")[0]),
-	}
-	headers := getAuthHeaders(tempChannel)
-	for key, values := range headers {
-		for _, value := range values {
-			request.Header.Add(key, value)
-		}
+	// remove line breaks and extra spaces.
+	key := strings.TrimSpace(req.Key)
+	// If the key contains a line break, only take the first part.
+	key = strings.Split(key, "\n")[0]
+
+	// 根据渠道类型设置不同的认证头
+	if req.Type == constant.ChannelTypeAnthropic {
+		request.Header.Set("x-api-key", key)
+		request.Header.Set("anthropic-version", "2023-06-01")
+	} else {
+		request.Header.Set("Authorization", "Bearer "+key)
 	}
 
-	// 发起请求
-	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -956,35 +912,50 @@ func FetchModels(c *gin.Context) {
 		})
 		return
 	}
-	defer response.Body.Close()
-
-	// 检查状态码
+	//check status code
 	if response.StatusCode != http.StatusOK {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": fmt.Sprintf("Failed to fetch models, status code: %d", response.StatusCode),
+			"message": "Failed to fetch models",
 		})
 		return
 	}
+	defer response.Body.Close()
 
-	// 读取响应体
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
+	var models []string
 
-	// 解析响应（复用现有逻辑）
-	models, err := parseModelsResponse(req.Type, body)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
+	// 根据渠道类型解析不同的响应格式
+	if req.Type == constant.ChannelTypeAnthropic {
+		var result AnthropicModelsResponse
+		if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+
+		for _, model := range result.Data {
+			models = append(models, model.ID)
+		}
+	} else {
+		var result struct {
+			Data []struct {
+				ID string `json:"id"`
+			} `json:"data"`
+		}
+
+		if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+
+		for _, model := range result.Data {
+			models = append(models, model.ID)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -1516,4 +1487,36 @@ func ManageMultiKeys(c *gin.Context) {
 		})
 		return
 	}
+}
+
+func GetResponseBody(method, url string, channel *model.Channel, headers http.Header) ([]byte, error) {
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	for k := range headers {
+		req.Header.Add(k, headers.Get(k))
+	}
+	res, err := service.GetHttpClient().Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("status code: %d", res.StatusCode)
+	}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func GetAuthHeader(token string) http.Header {
+	h := http.Header{}
+	h.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	return h
 }
