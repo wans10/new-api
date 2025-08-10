@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/constant"
@@ -39,6 +40,53 @@ type OpenAIModel struct {
 type OpenAIModelsResponse struct {
 	Data    []OpenAIModel `json:"data"`
 	Success bool          `json:"success"`
+}
+
+// AnthropicModel 定义Anthropic API返回的模型结构
+type AnthropicModel struct {
+	ID          string `json:"id"`
+	CreatedAt   string `json:"created_at"`
+	DisplayName string `json:"display_name"`
+	Type        string `json:"type"`
+}
+
+// AnthropicModelsResponse 定义Anthropic API响应结构
+type AnthropicModelsResponse struct {
+	Data    []AnthropicModel `json:"data"`
+	FirstID string           `json:"first_id"`
+	HasMore bool             `json:"has_more"`
+	LastID  string           `json:"last_id"`
+}
+
+// MultiKeyManageRequest represents the request for multi-key management operations
+type MultiKeyManageRequest struct {
+	ChannelId int    `json:"channel_id"`
+	Action    string `json:"action"`              // "disable_key", "enable_key", "delete_disabled_keys", "get_key_status"
+	KeyIndex  *int   `json:"key_index,omitempty"` // for disable_key and enable_key actions
+	Page      int    `json:"page,omitempty"`      // for get_key_status pagination
+	PageSize  int    `json:"page_size,omitempty"` // for get_key_status pagination
+	Status    *int   `json:"status,omitempty"`    // for get_key_status filtering: 1=enabled, 2=manual_disabled, 3=auto_disabled, nil=all
+}
+
+// MultiKeyStatusResponse represents the response for key status query
+type MultiKeyStatusResponse struct {
+	Keys       []KeyStatus `json:"keys"`
+	Total      int         `json:"total"`
+	Page       int         `json:"page"`
+	PageSize   int         `json:"page_size"`
+	TotalPages int         `json:"total_pages"`
+	// Statistics
+	EnabledCount        int `json:"enabled_count"`
+	ManualDisabledCount int `json:"manual_disabled_count"`
+	AutoDisabledCount   int `json:"auto_disabled_count"`
+}
+
+type KeyStatus struct {
+	Index        int    `json:"index"`
+	Status       int    `json:"status"` // 1: enabled, 2: disabled
+	DisabledTime int64  `json:"disabled_time,omitempty"`
+	Reason       string `json:"reason,omitempty"`
+	KeyPreview   string `json:"key_preview"` // first 10 chars of key for identification
 }
 
 func parseStatusFilter(statusParam string) int {
@@ -162,6 +210,77 @@ func GetAllChannels(c *gin.Context) {
 	return
 }
 
+func getChannelBaseURL(channelType int, customURL string) string {
+	if customURL != "" {
+		return customURL
+	}
+
+	if channelType >= 0 && channelType < len(constant.ChannelBaseURLs) {
+		return constant.ChannelBaseURLs[channelType]
+	}
+
+	return "" // 返回空字符串，让调用方处理
+}
+
+// 构建API端点URL
+func buildModelsURL(channelType int, baseURL string) string {
+	switch channelType {
+	case constant.ChannelTypeGemini:
+		return fmt.Sprintf("%s/v1beta/openai/models", baseURL)
+	case constant.ChannelTypeAli:
+		return fmt.Sprintf("%s/compatible-mode/v1/models", baseURL)
+	default:
+		return fmt.Sprintf("%s/v1/models", baseURL)
+	}
+}
+
+// 获取认证头
+func getAuthHeaders(channel *model.Channel) http.Header {
+	switch channel.Type {
+	case constant.ChannelTypeAnthropic:
+		headers := make(http.Header)
+		headers.Set("x-api-key", strings.TrimSpace(channel.Key))
+		headers.Set("anthropic-version", "2023-06-01")
+		headers.Set("Content-Type", "application/json")
+		return headers
+	default:
+		return GetAuthHeader(channel.Key)
+	}
+}
+
+// 解析不同类型的模型响应
+func parseModelsResponse(channelType int, body []byte) ([]string, error) {
+	var ids []string
+
+	switch channelType {
+	case constant.ChannelTypeAnthropic:
+		var anthropicResult AnthropicModelsResponse
+		if err := json.Unmarshal(body, &anthropicResult); err != nil {
+			return nil, fmt.Errorf("解析Anthropic响应失败: %s", err.Error())
+		}
+
+		for _, model := range anthropicResult.Data {
+			ids = append(ids, model.ID)
+		}
+
+	default:
+		var result OpenAIModelsResponse
+		if err := json.Unmarshal(body, &result); err != nil {
+			return nil, fmt.Errorf("解析OpenAI格式响应失败: %s", err.Error())
+		}
+
+		for _, model := range result.Data {
+			id := model.ID
+			if channelType == constant.ChannelTypeGemini {
+				id = strings.TrimPrefix(id, "models/")
+			}
+			ids = append(ids, id)
+		}
+	}
+
+	return ids, nil
+}
+
 func FetchUpstreamModels(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -175,51 +294,40 @@ func FetchUpstreamModels(c *gin.Context) {
 		return
 	}
 
-	baseURL := constant.ChannelBaseURLs[channel.Type]
-	if channel.GetBaseURL() != "" {
-		baseURL = channel.GetBaseURL()
-	}
-
-	var url string
-	switch channel.Type {
-	case constant.ChannelTypeGemini:
-		// curl https://example.com/v1beta/models?key=$GEMINI_API_KEY
-		url = fmt.Sprintf("%s/v1beta/openai/models", baseURL) // Remove key in url since we need to use AuthHeader
-	case constant.ChannelTypeAli:
-		url = fmt.Sprintf("%s/compatible-mode/v1/models", baseURL)
-	default:
-		url = fmt.Sprintf("%s/v1/models", baseURL)
-	}
-
-	// 获取响应体 - 根据渠道类型决定是否添加 AuthHeader
-	var body []byte
-	key := strings.Split(channel.Key, "\n")[0]
-	if channel.Type == constant.ChannelTypeGemini {
-		body, err = GetResponseBody("GET", url, channel, GetAuthHeader(key)) // Use AuthHeader since Gemini now forces it
-	} else {
-		body, err = GetResponseBody("GET", url, channel, GetAuthHeader(key))
-	}
-	if err != nil {
-		common.ApiError(c, err)
-		return
-	}
-
-	var result OpenAIModelsResponse
-	if err = json.Unmarshal(body, &result); err != nil {
+	// 安全获取基础URL
+	baseURL := getChannelBaseURL(channel.Type, channel.GetBaseURL())
+	if baseURL == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": fmt.Sprintf("解析响应失败: %s", err.Error()),
+			"message": fmt.Sprintf("不支持的渠道类型: %d", channel.Type),
 		})
 		return
 	}
 
-	var ids []string
-	for _, model := range result.Data {
-		id := model.ID
-		if channel.Type == constant.ChannelTypeGemini {
-			id = strings.TrimPrefix(id, "models/")
-		}
-		ids = append(ids, id)
+	// 构建请求URL
+	url := buildModelsURL(channel.Type, baseURL)
+
+	// 获取认证头
+	headers := getAuthHeaders(channel)
+
+	// 发起请求
+	body, err := GetResponseBody("GET", url, channel, headers)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": fmt.Sprintf("请求失败: %s", err.Error()),
+		})
+		return
+	}
+
+	// 解析响应
+	ids, err := parseModelsResponse(channel.Type, body)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -829,14 +937,24 @@ func FetchModels(c *gin.Context) {
 		return
 	}
 
+	// 获取基础URL
 	baseURL := req.BaseURL
 	if baseURL == "" {
-		baseURL = constant.ChannelBaseURLs[req.Type]
+		if req.Type >= 0 && req.Type < len(constant.ChannelBaseURLs) {
+			baseURL = constant.ChannelBaseURLs[req.Type]
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"message": "Unsupported channel type",
+			})
+			return
+		}
 	}
 
-	client := &http.Client{}
-	url := fmt.Sprintf("%s/v1/models", baseURL)
+	// 构建请求URL（复用现有逻辑）
+	url := buildModelsURL(req.Type, baseURL)
 
+	// 创建HTTP请求
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -846,12 +964,21 @@ func FetchModels(c *gin.Context) {
 		return
 	}
 
-	// remove line breaks and extra spaces.
-	key := strings.TrimSpace(req.Key)
-	// If the key contains a line break, only take the first part.
-	key = strings.Split(key, "\n")[0]
-	request.Header.Set("Authorization", "Bearer "+key)
+	// 设置认证头（可以复用现有的逻辑）
+	// Create a temporary channel object for header generation
+	tempChannel := &model.Channel{
+		Type: req.Type,
+		Key:  strings.TrimSpace(strings.Split(req.Key, "\n")[0]),
+	}
+	headers := getAuthHeaders(tempChannel)
+	for key, values := range headers {
+		for _, value := range values {
+			request.Header.Add(key, value)
+		}
+	}
 
+	// 发起请求
+	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -860,23 +987,20 @@ func FetchModels(c *gin.Context) {
 		})
 		return
 	}
-	//check status code
+	defer response.Body.Close()
+
+	// 检查状态码
 	if response.StatusCode != http.StatusOK {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "Failed to fetch models",
+			"message": fmt.Sprintf("Failed to fetch models, status code: %d", response.StatusCode),
 		})
 		return
 	}
-	defer response.Body.Close()
 
-	var result struct {
-		Data []struct {
-			ID string `json:"id"`
-		} `json:"data"`
-	}
-
-	if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+	// 读取响应体
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
 			"message": err.Error(),
@@ -884,9 +1008,14 @@ func FetchModels(c *gin.Context) {
 		return
 	}
 
-	var models []string
-	for _, model := range result.Data {
-		models = append(models, model.ID)
+	// 解析响应（复用现有逻辑）
+	models, err := parseModelsResponse(req.Type, body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -1008,37 +1137,6 @@ func CopyChannel(c *gin.Context) {
 	model.InitChannelCache()
 	// success
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "", "data": gin.H{"id": clone.Id}})
-}
-
-// MultiKeyManageRequest represents the request for multi-key management operations
-type MultiKeyManageRequest struct {
-	ChannelId int    `json:"channel_id"`
-	Action    string `json:"action"`              // "disable_key", "enable_key", "delete_disabled_keys", "get_key_status"
-	KeyIndex  *int   `json:"key_index,omitempty"` // for disable_key and enable_key actions
-	Page      int    `json:"page,omitempty"`      // for get_key_status pagination
-	PageSize  int    `json:"page_size,omitempty"` // for get_key_status pagination
-	Status    *int   `json:"status,omitempty"`    // for get_key_status filtering: 1=enabled, 2=manual_disabled, 3=auto_disabled, nil=all
-}
-
-// MultiKeyStatusResponse represents the response for key status query
-type MultiKeyStatusResponse struct {
-	Keys       []KeyStatus `json:"keys"`
-	Total      int         `json:"total"`
-	Page       int         `json:"page"`
-	PageSize   int         `json:"page_size"`
-	TotalPages int         `json:"total_pages"`
-	// Statistics
-	EnabledCount        int `json:"enabled_count"`
-	ManualDisabledCount int `json:"manual_disabled_count"`
-	AutoDisabledCount   int `json:"auto_disabled_count"`
-}
-
-type KeyStatus struct {
-	Index        int    `json:"index"`
-	Status       int    `json:"status"` // 1: enabled, 2: disabled
-	DisabledTime int64  `json:"disabled_time,omitempty"`
-	Reason       string `json:"reason,omitempty"`
-	KeyPreview   string `json:"key_preview"` // first 10 chars of key for identification
 }
 
 // ManageMultiKeys handles multi-key management operations
