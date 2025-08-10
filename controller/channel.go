@@ -224,6 +224,7 @@ func getChannelBaseURL(channelType int, customURL string) string {
 
 // 构建API端点URL
 func buildModelsURL(channelType int, baseURL string) string {
+	baseURL = strings.TrimRight(baseURL, "/")
 	switch channelType {
 	case constant.ChannelTypeGemini:
 		return fmt.Sprintf("%s/v1beta/openai/models", baseURL)
@@ -937,18 +938,14 @@ func FetchModels(c *gin.Context) {
 		return
 	}
 
-	// 获取基础URL
-	baseURL := req.BaseURL
+	// 获取基础URL（复用helper）
+	baseURL := getChannelBaseURL(req.Type, req.BaseURL)
 	if baseURL == "" {
-		if req.Type >= 0 && req.Type < len(constant.ChannelBaseURLs) {
-			baseURL = constant.ChannelBaseURLs[req.Type]
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"message": "Unsupported channel type",
-			})
-			return
-		}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Unsupported channel type",
+		})
+		return
 	}
 
 	// 构建请求URL（复用现有逻辑）
