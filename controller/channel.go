@@ -42,20 +42,14 @@ type OpenAIModelsResponse struct {
 	Success bool          `json:"success"`
 }
 
-// AnthropicModel 定义Anthropic API返回的模型结构
+// AnthropicModel 定义Anthropic API返回的模型结构（仅保留必要字段，降低耦合与解析失败风险）
 type AnthropicModel struct {
-	ID          string `json:"id"`
-	CreatedAt   string `json:"created_at"`
-	DisplayName string `json:"display_name"`
-	Type        string `json:"type"`
+	ID string `json:"id"`
 }
 
-// AnthropicModelsResponse 定义Anthropic API响应结构
+// AnthropicModelsResponse 定义Anthropic API响应结构（仅保留必要字段）
 type AnthropicModelsResponse struct {
-	Data    []AnthropicModel `json:"data"`
-	FirstID string           `json:"first_id"`
-	HasMore bool             `json:"has_more"`
-	LastID  string           `json:"last_id"`
+	Data []AnthropicModel `json:"data"`
 }
 
 // MultiKeyManageRequest represents the request for multi-key management operations
