@@ -8,6 +8,7 @@ import (
 	"one-api/common"
 	"one-api/constant"
 	"one-api/dto"
+	"one-api/logger"
 	"one-api/model"
 	"one-api/relay"
 	"one-api/relay/channel"
@@ -18,14 +19,14 @@ import (
 func UpdateVideoTaskAll(ctx context.Context, platform constant.TaskPlatform, taskChannelM map[int][]string, taskM map[string]*model.Task) error {
 	for channelId, taskIds := range taskChannelM {
 		if err := updateVideoTaskAll(ctx, platform, channelId, taskIds, taskM); err != nil {
-			common.LogError(ctx, fmt.Sprintf("Channel #%d failed to update video async tasks: %s", channelId, err.Error()))
+			logger.LogError(ctx, fmt.Sprintf("Channel #%d failed to update video async tasks: %s", channelId, err.Error()))
 		}
 	}
 	return nil
 }
 
 func updateVideoTaskAll(ctx context.Context, platform constant.TaskPlatform, channelId int, taskIds []string, taskM map[string]*model.Task) error {
-	common.LogInfo(ctx, fmt.Sprintf("Channel #%d pending video tasks: %d", channelId, len(taskIds)))
+	logger.LogInfo(ctx, fmt.Sprintf("Channel #%d pending video tasks: %d", channelId, len(taskIds)))
 	if len(taskIds) == 0 {
 		return nil
 	}
@@ -37,7 +38,7 @@ func updateVideoTaskAll(ctx context.Context, platform constant.TaskPlatform, cha
 			"progress":    "100%",
 		})
 		if errUpdate != nil {
-			common.SysError(fmt.Sprintf("UpdateVideoTask error: %v", errUpdate))
+			common.SysLog(fmt.Sprintf("UpdateVideoTask error: %v", errUpdate))
 		}
 		return fmt.Errorf("CacheGetChannel failed: %w", err)
 	}
@@ -47,7 +48,7 @@ func updateVideoTaskAll(ctx context.Context, platform constant.TaskPlatform, cha
 	}
 	for _, taskId := range taskIds {
 		if err := updateVideoSingleTask(ctx, adaptor, cacheGetChannel, taskId, taskM); err != nil {
-			common.LogError(ctx, fmt.Sprintf("Failed to update video task %s: %s", taskId, err.Error()))
+			logger.LogError(ctx, fmt.Sprintf("Failed to update video task %s: %s", taskId, err.Error()))
 		}
 	}
 	return nil
@@ -61,7 +62,7 @@ func updateVideoSingleTask(ctx context.Context, adaptor channel.TaskAdaptor, cha
 
 	task := taskM[taskId]
 	if task == nil {
-		common.LogError(ctx, fmt.Sprintf("Task %s not found in taskM", taskId))
+		logger.LogError(ctx, fmt.Sprintf("Task %s not found in taskM", taskId))
 		return fmt.Errorf("task %s not found", taskId)
 	}
 	resp, err := adaptor.FetchTask(baseURL, channel.Key, map[string]any{
@@ -93,7 +94,7 @@ func updateVideoSingleTask(ctx context.Context, adaptor channel.TaskAdaptor, cha
 	} else if taskResult, err = adaptor.ParseTaskResult(responseBody); err != nil {
 		return fmt.Errorf("parseTaskResult failed for task %s: %w", taskId, err)
 	} else {
-		task.Data = responseBody
+		task.Data = redactVideoResponseBody(responseBody)
 	}
 
 	now := time.Now().Unix()
@@ -116,7 +117,9 @@ func updateVideoSingleTask(ctx context.Context, adaptor channel.TaskAdaptor, cha
 		if task.FinishTime == 0 {
 			task.FinishTime = now
 		}
-		task.FailReason = taskResult.Url
+		if !(len(taskResult.Url) > 5 && taskResult.Url[:5] == "data:") {
+			task.FailReason = taskResult.Url
+		}
 	case model.TaskStatusFailure:
 		task.Status = model.TaskStatusFailure
 		task.Progress = "100%"
@@ -124,13 +127,13 @@ func updateVideoSingleTask(ctx context.Context, adaptor channel.TaskAdaptor, cha
 			task.FinishTime = now
 		}
 		task.FailReason = taskResult.Reason
-		common.LogInfo(ctx, fmt.Sprintf("Task %s failed: %s", task.TaskID, task.FailReason))
+		logger.LogInfo(ctx, fmt.Sprintf("Task %s failed: %s", task.TaskID, task.FailReason))
 		quota := task.Quota
 		if quota != 0 {
 			if err := model.IncreaseUserQuota(task.UserId, quota, false); err != nil {
-				common.LogError(ctx, "Failed to increase user quota: "+err.Error())
+				logger.LogError(ctx, "Failed to increase user quota: "+err.Error())
 			}
-			logContent := fmt.Sprintf("Video async task failed %s, refund %s", task.TaskID, common.LogQuota(quota))
+			logContent := fmt.Sprintf("Video async task failed %s, refund %s", task.TaskID, logger.LogQuota(quota))
 			model.RecordLog(task.UserId, model.LogTypeSystem, logContent)
 		}
 	default:
@@ -140,8 +143,42 @@ func updateVideoSingleTask(ctx context.Context, adaptor channel.TaskAdaptor, cha
 		task.Progress = taskResult.Progress
 	}
 	if err := task.Update(); err != nil {
-		common.SysError("UpdateVideoTask task error: " + err.Error())
+		common.SysLog("UpdateVideoTask task error: " + err.Error())
 	}
 
 	return nil
+}
+
+func redactVideoResponseBody(body []byte) []byte {
+	var m map[string]any
+	if err := json.Unmarshal(body, &m); err != nil {
+		return body
+	}
+	resp, _ := m["response"].(map[string]any)
+	if resp != nil {
+		delete(resp, "bytesBase64Encoded")
+		if v, ok := resp["video"].(string); ok {
+			resp["video"] = truncateBase64(v)
+		}
+		if vs, ok := resp["videos"].([]any); ok {
+			for i := range vs {
+				if vm, ok := vs[i].(map[string]any); ok {
+					delete(vm, "bytesBase64Encoded")
+				}
+			}
+		}
+	}
+	b, err := json.Marshal(m)
+	if err != nil {
+		return body
+	}
+	return b
+}
+
+func truncateBase64(s string) string {
+	const maxKeep = 256
+	if len(s) <= maxKeep {
+		return s
+	}
+	return s[:maxKeep] + "..."
 }

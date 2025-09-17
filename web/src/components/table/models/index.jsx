@@ -19,12 +19,12 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import CardPro from '../../common/ui/CardPro';
-import ModelsTable from './ModelsTable.jsx';
-import ModelsActions from './ModelsActions.jsx';
-import ModelsFilters from './ModelsFilters.jsx';
-import ModelsTabs from './ModelsTabs.jsx';
-import EditModelModal from './modals/EditModelModal.jsx';
-import EditVendorModal from './modals/EditVendorModal.jsx';
+import ModelsTable from './ModelsTable';
+import ModelsActions from './ModelsActions';
+import ModelsFilters from './ModelsFilters';
+import ModelsTabs from './ModelsTabs';
+import EditModelModal from './modals/EditModelModal';
+import EditVendorModal from './modals/EditVendorModal';
 import { useModelsData } from '../../../hooks/models/useModelsData';
 import { useIsMobile } from '../../../hooks/common/useIsMobile';
 import { createCardProPagination } from '../../../helpers/utils';
@@ -95,22 +95,27 @@ const ModelsPage = () => {
       />
 
       <CardPro
-        type="type3"
+        type='type3'
         tabsArea={<ModelsTabs {...modelsData} />}
         actionsArea={
-          <div className="flex flex-col md:flex-row justify-between items-center gap-2 w-full">
+          <div className='flex flex-col md:flex-row justify-between items-center gap-2 w-full'>
             <ModelsActions
               selectedKeys={selectedKeys}
               setSelectedKeys={setSelectedKeys}
               setEditingModel={setEditingModel}
               setShowEdit={setShowEdit}
               batchDeleteModels={batchDeleteModels}
+              syncing={modelsData.syncing}
+              syncUpstream={modelsData.syncUpstream}
+              previewing={modelsData.previewing}
+              previewUpstreamDiff={modelsData.previewUpstreamDiff}
+              applyUpstreamOverwrite={modelsData.applyUpstreamOverwrite}
               compactMode={compactMode}
               setCompactMode={setCompactMode}
               t={t}
             />
 
-            <div className="w-full md:w-full lg:w-auto order-1 md:order-2">
+            <div className='w-full md:w-full lg:w-auto order-1 md:order-2'>
               <ModelsFilters
                 formInitValues={formInitValues}
                 setFormApi={setFormApi}

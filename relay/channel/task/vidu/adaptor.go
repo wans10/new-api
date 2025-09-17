@@ -23,16 +23,6 @@ import (
 // Request / Response structures
 // ============================
 
-type SubmitReq struct {
-	Prompt   string                 `json:"prompt"`
-	Model    string                 `json:"model,omitempty"`
-	Mode     string                 `json:"mode,omitempty"`
-	Image    string                 `json:"image,omitempty"`
-	Size     string                 `json:"size,omitempty"`
-	Duration int                    `json:"duration,omitempty"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-}
-
 type requestPayload struct {
 	Model             string   `json:"model"`
 	Images            []string `json:"images"`
@@ -84,37 +74,22 @@ type TaskAdaptor struct {
 	baseURL     string
 }
 
-func (a *TaskAdaptor) Init(info *relaycommon.TaskRelayInfo) {
+func (a *TaskAdaptor) Init(info *relaycommon.RelayInfo) {
 	a.ChannelType = info.ChannelType
-	a.baseURL = info.BaseUrl
+	a.baseURL = info.ChannelBaseUrl
 }
 
-func (a *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycommon.TaskRelayInfo) *dto.TaskError {
-	var req SubmitReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		return service.TaskErrorWrapper(err, "invalid_request_body", http.StatusBadRequest)
-	}
-
-	if req.Prompt == "" {
-		return service.TaskErrorWrapperLocal(fmt.Errorf("prompt is required"), "missing_prompt", http.StatusBadRequest)
-	}
-
-	if req.Image != "" {
-		info.Action = constant.TaskActionGenerate
-	} else {
-		info.Action = constant.TaskActionTextGenerate
-	}
-
-	c.Set("task_request", req)
-	return nil
+func (a *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycommon.RelayInfo) *dto.TaskError {
+	// Use the unified validation method for TaskSubmitReq with image-based action determination
+	return relaycommon.ValidateTaskRequestWithImageBinding(c, info)
 }
 
-func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, _ *relaycommon.TaskRelayInfo) (io.Reader, error) {
+func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, _ *relaycommon.RelayInfo) (io.Reader, error) {
 	v, exists := c.Get("task_request")
 	if !exists {
 		return nil, fmt.Errorf("request not found in context")
 	}
-	req := v.(SubmitReq)
+	req := v.(relaycommon.TaskSubmitReq)
 
 	body, err := a.convertToRequestPayload(&req)
 	if err != nil {
@@ -132,7 +107,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, _ *relaycommon.TaskRelayI
 	return bytes.NewReader(data), nil
 }
 
-func (a *TaskAdaptor) BuildRequestURL(info *relaycommon.TaskRelayInfo) (string, error) {
+func (a *TaskAdaptor) BuildRequestURL(info *relaycommon.RelayInfo) (string, error) {
 	var path string
 	switch info.Action {
 	case constant.TaskActionGenerate:
@@ -143,21 +118,21 @@ func (a *TaskAdaptor) BuildRequestURL(info *relaycommon.TaskRelayInfo) (string, 
 	return fmt.Sprintf("%s/ent/v2%s", a.baseURL, path), nil
 }
 
-func (a *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info *relaycommon.TaskRelayInfo) error {
+func (a *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info *relaycommon.RelayInfo) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Token "+info.ApiKey)
 	return nil
 }
 
-func (a *TaskAdaptor) DoRequest(c *gin.Context, info *relaycommon.TaskRelayInfo, requestBody io.Reader) (*http.Response, error) {
+func (a *TaskAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, requestBody io.Reader) (*http.Response, error) {
 	if action := c.GetString("action"); action != "" {
 		info.Action = action
 	}
 	return channel.DoTaskApiRequest(a, c, info, requestBody)
 }
 
-func (a *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, _ *relaycommon.TaskRelayInfo) (taskID string, taskData []byte, taskErr *dto.TaskError) {
+func (a *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, _ *relaycommon.RelayInfo) (taskID string, taskData []byte, taskErr *dto.TaskError) {
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		taskErr = service.TaskErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
@@ -211,7 +186,7 @@ func (a *TaskAdaptor) GetChannelName() string {
 // helpers
 // ============================
 
-func (a *TaskAdaptor) convertToRequestPayload(req *SubmitReq) (*requestPayload, error) {
+func (a *TaskAdaptor) convertToRequestPayload(req *relaycommon.TaskSubmitReq) (*requestPayload, error) {
 	var images []string
 	if req.Image != "" {
 		images = []string{req.Image}

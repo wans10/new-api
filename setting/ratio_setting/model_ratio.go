@@ -52,34 +52,52 @@ var defaultModelRatio = map[string]float64{
 	"gpt-4o-realtime-preview-2024-12-17":      2.5,
 	"gpt-4o-mini-realtime-preview":            0.3,
 	"gpt-4o-mini-realtime-preview-2024-12-17": 0.3,
-	"gpt-image-1":                             2.5,
-	"o1":                                      7.5,
-	"o1-2024-12-17":                           7.5,
-	"o1-preview":                              7.5,
-	"o1-preview-2024-09-12":                   7.5,
-	"o1-mini":                                 0.55,
-	"o1-mini-2024-09-12":                      0.55,
-	"o3-mini":                                 0.55,
-	"o3-mini-2025-01-31":                      0.55,
-	"o3-mini-high":                            0.55,
-	"o3-mini-2025-01-31-high":                 0.55,
-	"o3-mini-low":                             0.55,
-	"o3-mini-2025-01-31-low":                  0.55,
-	"o3-mini-medium":                          0.55,
-	"o3-mini-2025-01-31-medium":               0.55,
-	"gpt-4o-mini":                             0.075,
-	"gpt-4o-mini-2024-07-18":                  0.075,
-	"gpt-4-turbo":                             5, // $0.01 / 1K tokens
-	"gpt-4-turbo-2024-04-09":                  5, // $0.01 / 1K tokens
-	"gpt-4.5-preview":                         37.5,
-	"gpt-4.5-preview-2025-02-27":              37.5,
-	"gpt-5":                                   0.625,
-	"gpt-5-2025-08-07":                        0.625,
-	"gpt-5-chat-latest":                       0.625,
-	"gpt-5-mini":                              0.125,
-	"gpt-5-mini-2025-08-07":                   0.125,
-	"gpt-5-nano":                              0.025,
-	"gpt-5-nano-2025-08-07":                   0.025,
+	"gpt-4.1":                          1.0,  // $2 / 1M tokens
+	"gpt-4.1-2025-04-14":               1.0,  // $2 / 1M tokens
+	"gpt-4.1-mini":                     0.2,  // $0.4 / 1M tokens
+	"gpt-4.1-mini-2025-04-14":          0.2,  // $0.4 / 1M tokens
+	"gpt-4.1-nano":                     0.05, // $0.1 / 1M tokens
+	"gpt-4.1-nano-2025-04-14":          0.05, // $0.1 / 1M tokens
+	"gpt-image-1":                      2.5,  // $5 / 1M tokens
+	"o1":                               7.5,  // $15 / 1M tokens
+	"o1-2024-12-17":                    7.5,  // $15 / 1M tokens
+	"o1-preview":                       7.5,  // $15 / 1M tokens
+	"o1-preview-2024-09-12":            7.5,  // $15 / 1M tokens
+	"o1-mini":                          0.55, // $1.1 / 1M tokens
+	"o1-mini-2024-09-12":               0.55, // $1.1 / 1M tokens
+	"o1-pro":                           75.0, // $150 / 1M tokens
+	"o1-pro-2025-03-19":                75.0, // $150 / 1M tokens
+	"o3-mini":                          0.55,
+	"o3-mini-2025-01-31":               0.55,
+	"o3-mini-high":                     0.55,
+	"o3-mini-2025-01-31-high":          0.55,
+	"o3-mini-low":                      0.55,
+	"o3-mini-2025-01-31-low":           0.55,
+	"o3-mini-medium":                   0.55,
+	"o3-mini-2025-01-31-medium":        0.55,
+	"o3":                               1.0,  // $2 / 1M tokens
+	"o3-2025-04-16":                    1.0,  // $2 / 1M tokens
+	"o3-pro":                           10.0, // $20 / 1M tokens
+	"o3-pro-2025-06-10":                10.0, // $20 / 1M tokens
+	"o3-deep-research":                 5.0,  // $10 / 1M tokens
+	"o3-deep-research-2025-06-26":      5.0,  // $10 / 1M tokens
+	"o4-mini":                          0.55, // $1.1 / 1M tokens
+	"o4-mini-2025-04-16":               0.55, // $1.1 / 1M tokens
+	"o4-mini-deep-research":            1.0,  // $2 / 1M tokens
+	"o4-mini-deep-research-2025-06-26": 1.0,  // $2 / 1M tokens
+	"gpt-4o-mini":                      0.075,
+	"gpt-4o-mini-2024-07-18":           0.075,
+	"gpt-4-turbo":                      5, // $0.01 / 1K tokens
+	"gpt-4-turbo-2024-04-09":           5, // $0.01 / 1K tokens
+	"gpt-4.5-preview":                  37.5,
+	"gpt-4.5-preview-2025-02-27":       37.5,
+	"gpt-5":                            0.625,
+	"gpt-5-2025-08-07":                 0.625,
+	"gpt-5-chat-latest":                0.625,
+	"gpt-5-mini":                       0.125,
+	"gpt-5-mini-2025-08-07":            0.125,
+	"gpt-5-nano":                       0.025,
+	"gpt-5-nano-2025-08-07":            0.025,
 	//"gpt-3.5-turbo-0301":           0.75, //deprecated
 	"gpt-3.5-turbo":          0.25,
 	"gpt-3.5-turbo-0613":     0.75,
@@ -260,6 +278,18 @@ var defaultModelPrice = map[string]float64{
 	"mj_upload":               0.05,
 }
 
+var defaultAudioRatio = map[string]float64{
+	"gpt-4o-audio-preview":         16,
+	"gpt-4o-mini-audio-preview":    66.67,
+	"gpt-4o-realtime-preview":      8,
+	"gpt-4o-mini-realtime-preview": 16.67,
+}
+
+var defaultAudioCompletionRatio = map[string]float64{
+	"gpt-4o-realtime":      2,
+	"gpt-4o-mini-realtime": 2,
+}
+
 var (
 	modelPriceMap      map[string]float64 = nil
 	modelPriceMapMutex                    = sync.RWMutex{}
@@ -308,6 +338,15 @@ func InitRatioSettings() {
 	imageRatioMap = defaultImageRatio
 	imageRatioMapMutex.Unlock()
 
+	// initialize audioRatioMap
+	audioRatioMapMutex.Lock()
+	audioRatioMap = defaultAudioRatio
+	audioRatioMapMutex.Unlock()
+
+	// initialize audioCompletionRatioMap
+	audioCompletionRatioMapMutex.Lock()
+	audioCompletionRatioMap = defaultAudioCompletionRatio
+	audioCompletionRatioMapMutex.Unlock()
 }
 
 func GetModelPriceMap() map[string]float64 {
@@ -320,7 +359,7 @@ func ModelPrice2JSONString() string {
 	modelPriceMapMutex.RLock()
 	defer modelPriceMapMutex.RUnlock()
 
-	jsonBytes, err := json.Marshal(modelPriceMap)
+	jsonBytes, err := common.Marshal(modelPriceMap)
 	if err != nil {
 		common.SysError("error marshalling model price: " + err.Error())
 	}
@@ -359,7 +398,7 @@ func UpdateModelRatioByJSONString(jsonStr string) error {
 	modelRatioMapMutex.Lock()
 	defer modelRatioMapMutex.Unlock()
 	modelRatioMap = make(map[string]float64)
-	err := json.Unmarshal([]byte(jsonStr), &modelRatioMap)
+	err := common.Unmarshal([]byte(jsonStr), &modelRatioMap)
 	if err == nil {
 		InvalidateExposedDataCache()
 	}
@@ -388,7 +427,7 @@ func GetModelRatio(name string) (float64, bool, string) {
 }
 
 func DefaultModelRatio2JSONString() string {
-	jsonBytes, err := json.Marshal(defaultModelRatio)
+	jsonBytes, err := common.Marshal(defaultModelRatio)
 	if err != nil {
 		common.SysError("error marshalling model ratio: " + err.Error())
 	}
@@ -397,6 +436,18 @@ func DefaultModelRatio2JSONString() string {
 
 func GetDefaultModelRatioMap() map[string]float64 {
 	return defaultModelRatio
+}
+
+func GetDefaultImageRatioMap() map[string]float64 {
+	return defaultImageRatio
+}
+
+func GetDefaultAudioRatioMap() map[string]float64 {
+	return defaultAudioRatio
+}
+
+func GetDefaultAudioCompletionRatioMap() map[string]float64 {
+	return defaultAudioCompletionRatio
 }
 
 func GetCompletionRatioMap() map[string]float64 {
@@ -420,7 +471,7 @@ func UpdateCompletionRatioByJSONString(jsonStr string) error {
 	CompletionRatioMutex.Lock()
 	defer CompletionRatioMutex.Unlock()
 	CompletionRatio = make(map[string]float64)
-	err := json.Unmarshal([]byte(jsonStr), &CompletionRatio)
+	err := common.Unmarshal([]byte(jsonStr), &CompletionRatio)
 	if err == nil {
 		InvalidateExposedDataCache()
 	}
@@ -450,7 +501,13 @@ func GetCompletionRatio(name string) float64 {
 
 func getHardcodedCompletionModelRatio(name string) (float64, bool) {
 	lowercaseName := strings.ToLower(name)
-	if strings.HasPrefix(name, "gpt-4") && !strings.HasSuffix(name, "-all") && !strings.HasSuffix(name, "-gizmo-*") {
+
+	isReservedModel := strings.HasSuffix(name, "-all") || strings.HasSuffix(name, "-gizmo-*")
+	if isReservedModel {
+		return 2, false
+	}
+
+	if strings.HasPrefix(name, "gpt-") {
 		if strings.HasPrefix(name, "gpt-4o") {
 			if name == "gpt-4o-2024-05-13" {
 				return 3, true
@@ -517,7 +574,7 @@ func getHardcodedCompletionModelRatio(name string) (float64, bool) {
 			if strings.HasPrefix(name, "gemini-2.5-flash-lite") {
 				return 4, false
 			}
-			return 2.5 / 0.3, true
+			return 2.5 / 0.3, false
 		}
 		return 4, false
 	}
@@ -560,32 +617,22 @@ func getHardcodedCompletionModelRatio(name string) (float64, bool) {
 }
 
 func GetAudioRatio(name string) float64 {
-	if strings.Contains(name, "-realtime") {
-		if strings.HasSuffix(name, "gpt-4o-realtime-preview") {
-			return 8
-		} else if strings.Contains(name, "gpt-4o-mini-realtime-preview") {
-			return 10 / 0.6
-		} else {
-			return 20
-		}
-	}
-	if strings.Contains(name, "-audio") {
-		if strings.HasPrefix(name, "gpt-4o-audio-preview") {
-			return 40 / 2.5
-		} else if strings.HasPrefix(name, "gpt-4o-mini-audio-preview") {
-			return 10 / 0.15
-		} else {
-			return 40
-		}
+	audioRatioMapMutex.RLock()
+	defer audioRatioMapMutex.RUnlock()
+	name = FormatMatchingModelName(name)
+	if ratio, ok := audioRatioMap[name]; ok {
+		return ratio
 	}
 	return 20
 }
 
 func GetAudioCompletionRatio(name string) float64 {
-	if strings.HasPrefix(name, "gpt-4o-realtime") {
-		return 2
-	} else if strings.HasPrefix(name, "gpt-4o-mini-realtime") {
-		return 2
+	audioCompletionRatioMapMutex.RLock()
+	defer audioCompletionRatioMapMutex.RUnlock()
+	name = FormatMatchingModelName(name)
+	if ratio, ok := audioCompletionRatioMap[name]; ok {
+
+		return ratio
 	}
 	return 2
 }
@@ -594,7 +641,7 @@ func ModelRatio2JSONString() string {
 	modelRatioMapMutex.RLock()
 	defer modelRatioMapMutex.RUnlock()
 
-	jsonBytes, err := json.Marshal(modelRatioMap)
+	jsonBytes, err := common.Marshal(modelRatioMap)
 	if err != nil {
 		common.SysError("error marshalling model ratio: " + err.Error())
 	}
@@ -606,11 +653,19 @@ var defaultImageRatio = map[string]float64{
 }
 var imageRatioMap map[string]float64
 var imageRatioMapMutex sync.RWMutex
+var (
+	audioRatioMap      map[string]float64 = nil
+	audioRatioMapMutex                    = sync.RWMutex{}
+)
+var (
+	audioCompletionRatioMap      map[string]float64 = nil
+	audioCompletionRatioMapMutex                    = sync.RWMutex{}
+)
 
 func ImageRatio2JSONString() string {
 	imageRatioMapMutex.RLock()
 	defer imageRatioMapMutex.RUnlock()
-	jsonBytes, err := json.Marshal(imageRatioMap)
+	jsonBytes, err := common.Marshal(imageRatioMap)
 	if err != nil {
 		common.SysError("error marshalling cache ratio: " + err.Error())
 	}
@@ -621,7 +676,7 @@ func UpdateImageRatioByJSONString(jsonStr string) error {
 	imageRatioMapMutex.Lock()
 	defer imageRatioMapMutex.Unlock()
 	imageRatioMap = make(map[string]float64)
-	return json.Unmarshal([]byte(jsonStr), &imageRatioMap)
+	return common.Unmarshal([]byte(jsonStr), &imageRatioMap)
 }
 
 func GetImageRatio(name string) (float64, bool) {
@@ -632,6 +687,71 @@ func GetImageRatio(name string) (float64, bool) {
 		return 1, false // Default to 1 if not found
 	}
 	return ratio, true
+}
+
+func AudioRatio2JSONString() string {
+	audioRatioMapMutex.RLock()
+	defer audioRatioMapMutex.RUnlock()
+	jsonBytes, err := common.Marshal(audioRatioMap)
+	if err != nil {
+		common.SysError("error marshalling audio ratio: " + err.Error())
+	}
+	return string(jsonBytes)
+}
+
+func UpdateAudioRatioByJSONString(jsonStr string) error {
+
+	tmp := make(map[string]float64)
+	if err := common.Unmarshal([]byte(jsonStr), &tmp); err != nil {
+		return err
+	}
+	audioRatioMapMutex.Lock()
+	audioRatioMap = tmp
+	audioRatioMapMutex.Unlock()
+	InvalidateExposedDataCache()
+	return nil
+}
+
+func GetAudioRatioCopy() map[string]float64 {
+	audioRatioMapMutex.RLock()
+	defer audioRatioMapMutex.RUnlock()
+	copyMap := make(map[string]float64, len(audioRatioMap))
+	for k, v := range audioRatioMap {
+		copyMap[k] = v
+	}
+	return copyMap
+}
+
+func AudioCompletionRatio2JSONString() string {
+	audioCompletionRatioMapMutex.RLock()
+	defer audioCompletionRatioMapMutex.RUnlock()
+	jsonBytes, err := common.Marshal(audioCompletionRatioMap)
+	if err != nil {
+		common.SysError("error marshalling audio completion ratio: " + err.Error())
+	}
+	return string(jsonBytes)
+}
+
+func UpdateAudioCompletionRatioByJSONString(jsonStr string) error {
+	tmp := make(map[string]float64)
+	if err := common.Unmarshal([]byte(jsonStr), &tmp); err != nil {
+		return err
+	}
+	audioCompletionRatioMapMutex.Lock()
+	audioCompletionRatioMap = tmp
+	audioCompletionRatioMapMutex.Unlock()
+	InvalidateExposedDataCache()
+	return nil
+}
+
+func GetAudioCompletionRatioCopy() map[string]float64 {
+	audioCompletionRatioMapMutex.RLock()
+	defer audioCompletionRatioMapMutex.RUnlock()
+	copyMap := make(map[string]float64, len(audioCompletionRatioMap))
+	for k, v := range audioCompletionRatioMap {
+		copyMap[k] = v
+	}
+	return copyMap
 }
 
 func GetModelRatioCopy() map[string]float64 {

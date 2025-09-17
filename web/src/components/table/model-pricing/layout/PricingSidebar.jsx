@@ -23,7 +23,8 @@ import PricingGroups from '../filter/PricingGroups';
 import PricingQuotaTypes from '../filter/PricingQuotaTypes';
 import PricingEndpointTypes from '../filter/PricingEndpointTypes';
 import PricingVendors from '../filter/PricingVendors';
-import PricingDisplaySettings from '../filter/PricingDisplaySettings';
+import PricingTags from '../filter/PricingTags';
+
 import { resetPricingFilters } from '../../../../helpers/utils';
 import { usePricingFilterCounts } from '../../../../hooks/model-pricing/usePricingFilterCounts';
 
@@ -47,6 +48,8 @@ const PricingSidebar = ({
   setFilterEndpointType,
   filterVendor,
   setFilterVendor,
+  filterTag,
+  setFilterTag,
   currentPage,
   setCurrentPage,
   tokenUnit,
@@ -55,11 +58,11 @@ const PricingSidebar = ({
   t,
   ...categoryProps
 }) => {
-
   const {
     quotaTypeModels,
     endpointTypeModels,
     vendorModels,
+    tagModels,
     groupCountModels,
   } = usePricingFilterCounts({
     models: categoryProps.models,
@@ -67,6 +70,7 @@ const PricingSidebar = ({
     filterQuotaType,
     filterEndpointType,
     filterVendor,
+    filterTag,
     searchValue: categoryProps.searchValue,
   });
 
@@ -81,45 +85,38 @@ const PricingSidebar = ({
       setFilterQuotaType,
       setFilterEndpointType,
       setFilterVendor,
+      setFilterTag,
       setCurrentPage,
       setTokenUnit,
     });
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-6">
-        <div className="text-lg font-semibold text-gray-800">
-          {t('筛选')}
-        </div>
+    <div className='p-2'>
+      <div className='flex items-center justify-between mb-6'>
+        <div className='text-lg font-semibold text-gray-800'>{t('筛选')}</div>
         <Button
-          theme="outline"
+          theme='outline'
           type='tertiary'
           onClick={handleResetFilters}
-          className="text-gray-500 hover:text-gray-700"
+          className='text-gray-500 hover:text-gray-700'
         >
           {t('重置')}
         </Button>
       </div>
 
-      <PricingDisplaySettings
-        showWithRecharge={showWithRecharge}
-        setShowWithRecharge={setShowWithRecharge}
-        currency={currency}
-        setCurrency={setCurrency}
-        showRatio={showRatio}
-        setShowRatio={setShowRatio}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        tokenUnit={tokenUnit}
-        setTokenUnit={setTokenUnit}
-        loading={loading}
-        t={t}
-      />
-
       <PricingVendors
         filterVendor={filterVendor}
         setFilterVendor={setFilterVendor}
         models={vendorModels}
+        allModels={categoryProps.models}
+        loading={loading}
+        t={t}
+      />
+
+      <PricingTags
+        filterTag={filterTag}
+        setFilterTag={setFilterTag}
+        models={tagModels}
         allModels={categoryProps.models}
         loading={loading}
         t={t}
@@ -155,4 +152,4 @@ const PricingSidebar = ({
   );
 };
 
-export default PricingSidebar; 
+export default PricingSidebar;
