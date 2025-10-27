@@ -23,6 +23,7 @@ import { API, copy, showError, showInfo, showSuccess } from '../../helpers';
 import { Modal } from '@douyinfe/semi-ui';
 import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
+import {customSortOrder} from "@/hooks/model-pricing/useModelCustomSort.jsx";
 
 export const useModelPricingData = () => {
   const { t } = useTranslation();
@@ -203,6 +204,26 @@ export const useModelPricingData = () => {
     });
 
     models.sort((a, b) => {
+    // 自定义排序逻辑
+    const aIndex = customSortOrder.indexOf(a.model_name);
+    const bIndex = customSortOrder.indexOf(b.model_name);
+
+    // 如果两个模型都在自定义列表中，按列表顺序排序--LLM Hub
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+
+    // 如果只有 a 在自定义列表中，a 排在前面--LLM Hub
+    if (aIndex !== -1) {
+      return -1;
+    }
+
+    // 如果只有 b 在自定义列表中，b 排在前面--LLM Hub
+    if (bIndex !== -1) {
+      return 1;
+    }
+
+    // 都不在自定义列表中，保持原有的 gpt 优先逻辑--LLM Hub
       if (a.model_name.startsWith('gpt') && !b.model_name.startsWith('gpt')) {
         return -1;
       } else if (
@@ -233,6 +254,14 @@ export const useModelPricingData = () => {
       auto_groups,
     } = res.data;
     if (success) {
+      // 添加调试日志
+      console.log('[loadPricing] API 返回的模型数据:', data);
+      const segmentedModels = data.filter(m => m.use_segmented_pricing);
+      console.log('[loadPricing] 使用分段定价的模型数量:', segmentedModels.length);
+      if (segmentedModels.length > 0) {
+        console.log('[loadPricing] 使用分段定价的模型详情:', segmentedModels);
+      }
+
       setGroupRatio(group_ratio);
       setUsableGroup(usable_group);
       setSelectedGroup('all');

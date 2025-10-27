@@ -591,6 +591,85 @@ export const selectFilter = (input, option) => {
 };
 
 // -------------------------------
+// 格式化分段规则的描述
+export const formatSegmentRuleDescription = (rule, t) => {
+  const parts = [];
+
+  // 输入范围
+  if (rule.input_min > 0 && rule.input_max > 0) {
+    const minK = Math.round(rule.input_min / 1000);
+    const maxK = Math.round(rule.input_max / 1000);
+    if (minK === maxK) {
+      parts.push(`${t('输入')} = ${maxK}k tokens`);
+    } else {
+      parts.push(`${minK}k < ${t('输入')} < ${maxK}k tokens`);
+    }
+  } else if (rule.input_min > 0) {
+    const minK = Math.round(rule.input_min / 1000);
+    parts.push(`${t('输入')} > ${minK}k tokens`);
+  } else if (rule.input_max > 0) {
+    const maxK = Math.round(rule.input_max / 1000);
+    parts.push(`${t('输入')} ≤ ${maxK}k tokens`);
+  }
+
+  // 输出范围
+  if (rule.output_min > 0 && rule.output_max > 0) {
+    const minK = Math.round(rule.output_min / 1000);
+    const maxK = Math.round(rule.output_max / 1000);
+    if (minK === maxK) {
+      parts.push(`${t('输出')} = ${maxK}k tokens`);
+    } else {
+      parts.push(`${minK}k < ${t('输出')} < ${maxK}k tokens`);
+    }
+  } else if (rule.output_min > 0) {
+    const minK = Math.round(rule.output_min / 1000);
+    parts.push(`${t('输出')} > ${minK}k tokens`);
+  } else if (rule.output_max > 0) {
+    const maxK = Math.round(rule.output_max / 1000);
+    parts.push(`${t('输出')} ≤ ${maxK}k tokens`);
+  }
+
+  return parts.join(' ');
+};
+
+// 计算单个规则的价格
+const calculateSegmentRulePrice = (rule, usedGroupRatio, displayPrice, tokenUnit, currency, precision) => {
+  const inputRatioPriceUSD = rule.model_ratio * 2 * usedGroupRatio;
+  const completionRatioPriceUSD = rule.model_ratio * rule.completion_ratio * 2 * usedGroupRatio;
+
+  const unitDivisor = tokenUnit === 'K' ? 1000 : 1;
+  const unitLabel = tokenUnit === 'K' ? 'K' : 'M';
+
+  const rawDisplayInput = displayPrice(inputRatioPriceUSD);
+  const rawDisplayCompletion = displayPrice(completionRatioPriceUSD);
+
+  const numInput = parseFloat(rawDisplayInput.replace(/[^0-9.]/g, '')) / unitDivisor;
+  const numCompletion = parseFloat(rawDisplayCompletion.replace(/[^0-9.]/g, '')) / unitDivisor;
+
+  let symbol = '$';
+  if (currency === 'CNY') {
+    symbol = '¥';
+  } else if (currency === 'CUSTOM') {
+    try {
+      const statusStr = localStorage.getItem('status');
+      if (statusStr) {
+        const s = JSON.parse(statusStr);
+        symbol = s?.custom_currency_symbol || '¤';
+      } else {
+        symbol = '¤';
+      }
+    } catch (e) {
+      symbol = '¤';
+    }
+  }
+
+  return {
+    inputPrice: `${symbol}${numInput.toFixed(precision)}`,
+    completionPrice: `${symbol}${numCompletion.toFixed(precision)}`,
+    unitLabel,
+  };
+};
+
 // 模型定价计算工具函数
 export const calculateModelPrice = ({
   record,
@@ -630,7 +709,31 @@ export const calculateModelPrice = ({
 
   // 2. 根据计费类型计算价格
   if (record.quota_type === 0) {
-    // 按量计费
+    // 按量计费 - 检查是否使用分段定价
+    if (record.use_segmented_pricing && record.segmented_rules && record.segmented_rules.length > 0) {
+      // 添加调试日志
+      console.log('[calculateModelPrice] 检测到分段定价模型:', record.model_name);
+      console.log('[calculateModelPrice] 分段规则数量:', record.segmented_rules.length);
+      console.log('[calculateModelPrice] 分段规则详情:', record.segmented_rules);
+
+      // 计算所有分段规则的价格
+      const segmentedPrices = record.segmented_rules.map((rule) => ({
+        rule,
+        ...calculateSegmentRulePrice(rule, usedGroupRatio, displayPrice, tokenUnit, currency, precision),
+      }));
+
+      console.log('[calculateModelPrice] 计算后的分段价格:', segmentedPrices);
+
+      return {
+        isPerToken: true,
+        usedGroup,
+        usedGroupRatio,
+        useSegmentedPricing: true,
+        segmentedPrices,
+      };
+    }
+
+    // 普通按量计费
     const inputRatioPriceUSD = record.model_ratio * 2 * usedGroupRatio;
     const completionRatioPriceUSD =
       record.model_ratio * record.completion_ratio * 2 * usedGroupRatio;
@@ -669,6 +772,7 @@ export const calculateModelPrice = ({
       isPerToken: true,
       usedGroup,
       usedGroupRatio,
+      useSegmentedPricing: false,
     };
   }
 
@@ -696,6 +800,34 @@ export const calculateModelPrice = ({
 
 // 格式化价格信息（用于卡片视图）
 export const formatPriceInfo = (priceData, t) => {
+  // 分段定价显示
+  if (priceData.isPerToken && priceData.useSegmentedPricing && priceData.segmentedPrices) {
+    // 对于卡片视图，只显示第一条规则的价格，点击后可以看详情
+    const firstSegment = priceData.segmentedPrices[0];
+    if (firstSegment) {
+      const description = formatSegmentRuleDescription(firstSegment.rule, t);
+      return (
+        <>
+          <span style={{ color: 'var(--semi-color-text-2)', fontSize: '11px', display: 'block', marginBottom: '2px' }}>
+            {description}
+          </span>
+          <span style={{ color: 'var(--semi-color-text-1)' }}>
+            {t('输入')} {firstSegment.inputPrice}/{firstSegment.unitLabel}
+          </span>
+          <span style={{ color: 'var(--semi-color-text-1)' }}>
+            {t('输出')} {firstSegment.completionPrice}/{firstSegment.unitLabel}
+          </span>
+          {priceData.segmentedPrices.length > 1 && (
+            <span style={{ color: 'var(--semi-color-text-2)', fontSize: '11px' }}>
+              (+{priceData.segmentedPrices.length - 1} {t('个规则')})
+            </span>
+          )}
+        </>
+      );
+    }
+  }
+
+  // 普通按量计费显示
   if (priceData.isPerToken) {
     return (
       <>
@@ -709,6 +841,7 @@ export const formatPriceInfo = (priceData, t) => {
     );
   }
 
+  // 按次计费显示
   return (
     <>
       <span style={{ color: 'var(--semi-color-text-1)' }}>
