@@ -233,6 +233,14 @@ export const useModelPricingData = () => {
       auto_groups,
     } = res.data;
     if (success) {
+      // 添加调试日志
+      console.log('[loadPricing] API 返回的模型数据:', data);
+      const segmentedModels = data.filter(m => m.use_segmented_pricing);
+      console.log('[loadPricing] 使用分段定价的模型数量:', segmentedModels.length);
+      if (segmentedModels.length > 0) {
+        console.log('[loadPricing] 使用分段定价的模型详情:', segmentedModels);
+      }
+
       setGroupRatio(group_ratio);
       setUsableGroup(usable_group);
       setSelectedGroup('all');
