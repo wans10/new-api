@@ -627,7 +627,7 @@ export default function UnifiedRatioEditor() {
 
         if (min === 0 && max === 0) return '无限制';
         if (min === 0) return `≤ ${formatNum(max)}`;
-        if (max === 0) return `≥ ${formatNum(min)}`;
+        if (max === 0) return `> ${formatNum(min)}`;
         return `${formatNum(min)} ~ ${formatNum(max)}`;
     };
 

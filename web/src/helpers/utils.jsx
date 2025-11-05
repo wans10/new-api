@@ -602,7 +602,7 @@ export const formatSegmentRuleDescription = (rule, t) => {
     if (minK === maxK) {
       parts.push(`${t('输入')} = ${maxK}k tokens`);
     } else {
-      parts.push(`${minK}k < ${t('输入')} < ${maxK}k tokens`);
+      parts.push(`${minK}k < ${t('输入')} ≤ ${maxK}k tokens`);
     }
   } else if (rule.input_min > 0) {
     const minK = Math.round(rule.input_min / 1000);
@@ -619,7 +619,7 @@ export const formatSegmentRuleDescription = (rule, t) => {
     if (minK === maxK) {
       parts.push(`${t('输出')} = ${maxK}k tokens`);
     } else {
-      parts.push(`${minK}k < ${t('输出')} < ${maxK}k tokens`);
+      parts.push(`${minK}k < ${t('输出')} ≤ ${maxK}k tokens`);
     }
   } else if (rule.output_min > 0) {
     const minK = Math.round(rule.output_min / 1000);
