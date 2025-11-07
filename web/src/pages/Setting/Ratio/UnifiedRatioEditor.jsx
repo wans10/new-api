@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next';
 
 const { Text, Title } = Typography;
 
-export default function UnifiedRatioEditor() {
+export default function UnifiedRatioEditor({ refresh }) {
     const { t } = useTranslation();
     const [configs, setConfigs] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -433,6 +433,10 @@ export default function UnifiedRatioEditor() {
                 if (allSuccess) {
                     showSuccess('删除成功');
                     loadConfigs();
+                    // 通知父组件刷新以同步其他标签页的数据
+                    if (refresh) {
+                        refresh();
+                    }
                 } else {
                     showError('删除失败，请重试');
                 }
@@ -442,6 +446,10 @@ export default function UnifiedRatioEditor() {
                 if (res.data.success) {
                     showSuccess('删除成功');
                     loadConfigs();
+                    // 通知父组件刷新以同步其他标签页的数据
+                    if (refresh) {
+                        refresh();
+                    }
                 } else {
                     showError(res.data.message || '删除失败');
                 }
@@ -478,6 +486,10 @@ export default function UnifiedRatioEditor() {
                     showSuccess(editingConfig ? '更新成功' : '创建成功');
                     setVisible(false);
                     loadConfigs();
+                    // 通知父组件刷新以同步其他标签页的数据
+                    if (refresh) {
+                        refresh();
+                    }
                 } else {
                     showError(res.data.message || '保存失败');
                 }
@@ -562,6 +574,10 @@ export default function UnifiedRatioEditor() {
                     showSuccess(editingConfig ? '更新成功' : '创建成功');
                     setVisible(false);
                     loadConfigs();
+                    // 通知父组件刷新以同步其他标签页的数据
+                    if (refresh) {
+                        refresh();
+                    }
                 } else {
                     showError('保存失败，请重试');
                 }
@@ -647,7 +663,7 @@ export default function UnifiedRatioEditor() {
         if (config.rules.length === 1) {
             const rule = config.rules[0];
             return rule.input_min === 0 && rule.input_max === 0 &&
-                rule.output_min === 0 && rule.output_max === 0;
+                   rule.output_min === 0 && rule.output_max === 0;
         }
 
         return false;
