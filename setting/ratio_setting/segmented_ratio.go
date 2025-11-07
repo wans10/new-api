@@ -140,7 +140,10 @@ func UpdateSegmentedRatioByJSONString(jsonStr string) error {
 // EvaluateSegmentedRatio determines the appropriate model and completion ratios
 // based on input and output token counts
 func EvaluateSegmentedRatio(modelName string, inputTokens, outputTokens int) (modelRatio, completionRatio float64, matched bool) {
-	config, exists := GetSegmentedRatio(modelName)
+	segmentedRatioMapMutex.RLock()
+	defer segmentedRatioMapMutex.RUnlock()
+
+	config, exists := segmentedRatioMap[modelName]
 	if !exists || !config.Enabled || len(config.Rules) == 0 {
 		return 0, 0, false
 	}
