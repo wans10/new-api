@@ -113,7 +113,7 @@ const RatioSetting = () => {
             <ModelRatioNotSetEditor options={inputs} refresh={onRefresh} />
           </Tabs.TabPane>
           <Tabs.TabPane tab={t('统一倍率管理')} itemKey='unified'>
-            <UnifiedRatioEditor />
+            <UnifiedRatioEditor refresh={onRefresh} />
           </Tabs.TabPane>
           <Tabs.TabPane tab={t('上游倍率同步')} itemKey='upstream_sync'>
             <UpstreamRatioSync options={inputs} refresh={onRefresh} />
