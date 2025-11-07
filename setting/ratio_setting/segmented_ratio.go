@@ -59,7 +59,7 @@ func SetSegmentedRatio(modelName string, config *SegmentedRatioConfig) {
 	// Sort rules by priority (descending) for efficient evaluation
 	sortedRules := make([]SegmentRule, len(config.Rules))
 	copy(sortedRules, config.Rules)
-	sort.Slice(sortedRules, func(i, j int) bool {
+	sort.SliceStable(sortedRules, func(i, j int) bool {
 		return sortedRules[i].Priority > sortedRules[j].Priority
 	})
 
@@ -124,7 +124,7 @@ func UpdateSegmentedRatioByJSONString(jsonStr string) error {
 
 	// Sort rules for each config
 	for _, config := range tmp {
-		sort.Slice(config.Rules, func(i, j int) bool {
+		sort.SliceStable(config.Rules, func(i, j int) bool {
 			return config.Rules[i].Priority > config.Rules[j].Priority
 		})
 	}
