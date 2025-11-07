@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/QuantumNous/new-api/model"
@@ -80,7 +81,7 @@ func CreateOrUpdateSegmentedRatio(c *gin.Context) {
 		if rule.InputMin < 0 || rule.InputMax < 0 || rule.OutputMin < 0 || rule.OutputMax < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
-				"message": "规则 " + string(rune(i+1)) + " 的token范围不能为负数",
+				"message": fmt.Sprintf("规则 %d 的token范围不能为负数", i+1),
 			})
 			return
 		}
@@ -88,7 +89,7 @@ func CreateOrUpdateSegmentedRatio(c *gin.Context) {
 		if rule.InputMax > 0 && rule.InputMin > rule.InputMax {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
-				"message": "规则 " + string(rune(i+1)) + " 的输入token最小值不能大于最大值",
+				"message": fmt.Sprintf("规则 %d 的输入token最小值不能大于最大值", i+1),
 			})
 			return
 		}
@@ -96,7 +97,7 @@ func CreateOrUpdateSegmentedRatio(c *gin.Context) {
 		if rule.OutputMax > 0 && rule.OutputMin > rule.OutputMax {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
-				"message": "规则 " + string(rune(i+1)) + " 的输出token最小值不能大于最大值",
+				"message": fmt.Sprintf("规则 %d 的输出token最小值不能大于最大值", i+1),
 			})
 			return
 		}
@@ -104,7 +105,7 @@ func CreateOrUpdateSegmentedRatio(c *gin.Context) {
 		if rule.ModelRatio < 0 || rule.CompletionRatio < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
-				"message": "规则 " + string(rune(i+1)) + " 的倍率不能为负数",
+				"message": fmt.Sprintf("规则 %d 的倍率不能为负数", i+1),
 			})
 			return
 		}
@@ -182,6 +183,60 @@ func ImportSegmentedRatios(c *gin.Context) {
 			"message": "无效的请求参数: " + err.Error(),
 		})
 		return
+	}
+
+	// Parse and validate before applying
+	var tmpConfigs map[string]*ratio_setting.SegmentedRatioConfig
+	if err := json.Unmarshal([]byte(request.Data), &tmpConfigs); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "导入分段倍率配置失败: " + err.Error(),
+		})
+		return
+	}
+
+	// Validate each config
+	for modelName, config := range tmpConfigs {
+		if config.ModelName == "" {
+			config.ModelName = modelName
+		}
+		if len(config.Rules) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"message": fmt.Sprintf("模型 %s 至少需要配置一条规则", modelName),
+			})
+			return
+		}
+		for i, rule := range config.Rules {
+			if rule.InputMin < 0 || rule.InputMax < 0 || rule.OutputMin < 0 || rule.OutputMax < 0 {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": fmt.Sprintf("模型 %s 规则 %d 的token范围不能为负数", modelName, i+1),
+				})
+				return
+			}
+			if rule.InputMax > 0 && rule.InputMin > rule.InputMax {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": fmt.Sprintf("模型 %s 规则 %d 的输入token最小值不能大于最大值", modelName, i+1),
+				})
+				return
+			}
+			if rule.OutputMax > 0 && rule.OutputMin > rule.OutputMax {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": fmt.Sprintf("模型 %s 规则 %d 的输出token最小值不能大于最大值", modelName, i+1),
+				})
+				return
+			}
+			if rule.ModelRatio < 0 || rule.CompletionRatio < 0 {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": fmt.Sprintf("模型 %s 规则 %d 的倍率不能为负数", modelName, i+1),
+				})
+				return
+			}
+		}
 	}
 
 	err = ratio_setting.UpdateSegmentedRatioByJSONString(request.Data)
