@@ -92,9 +92,11 @@ export default function ModelRatioNotSetEditor(props) {
         try {
           const segmentedRes = await API.get('/api/segmented_ratio/');
           if (segmentedRes.data.success) {
-            const configs = Object.values(segmentedRes.data.data || {});
-            configs.forEach((config) => {
-              segmentedRatioModels.add(config.model_name);
+            const configs = segmentedRes.data.data || {};
+            Object.entries(configs).forEach(([modelName, config]) => {
+              if (config?.enabled) {
+                segmentedRatioModels.add(modelName);
+              }
             });
           }
         } catch (error) {
