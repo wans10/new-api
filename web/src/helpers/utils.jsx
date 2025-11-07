@@ -594,39 +594,46 @@ export const selectFilter = (input, option) => {
 // 格式化分段规则的描述
 export const formatSegmentRuleDescription = (rule, t) => {
   const parts = [];
-
-  // 输入范围
-  if (rule.input_min > 0 && rule.input_max > 0) {
-    const minK = Math.round(rule.input_min / 1000);
-    const maxK = Math.round(rule.input_max / 1000);
-    if (minK === maxK) {
-      parts.push(`${t('输入')} = ${maxK}k tokens`);
-    } else {
-      parts.push(`${minK}k < ${t('输入')} ≤ ${maxK}k tokens`);
+  const formatTokens = (tokens) => {
+    if (tokens === 0) {
+      return null;
     }
-  } else if (rule.input_min > 0) {
-    const minK = Math.round(rule.input_min / 1000);
-    parts.push(`${t('输入')} > ${minK}k tokens`);
-  } else if (rule.input_max > 0) {
-    const maxK = Math.round(rule.input_max / 1000);
-    parts.push(`${t('输入')} ≤ ${maxK}k tokens`);
+    if (tokens >= 1000) {
+      const value = tokens / 1000;
+      const formatted = Number.isInteger(value)
+        ? value.toString()
+        : value.toFixed(1).replace(/\.0$/, '');
+      return `${formatted}k`;
+    }
+    return tokens.toString();
+  };
+
+  const inputMinText = formatTokens(rule.input_min);
+  const inputMaxText = formatTokens(rule.input_max);
+  if (inputMinText && inputMaxText) {
+    if (rule.input_min === rule.input_max) {
+      parts.push(`${t('输入')} = ${inputMinText} tokens`);
+    } else {
+      parts.push(`${inputMinText} < ${t('输入')} ≤ ${inputMaxText} tokens`);
+    }
+  } else if (inputMinText) {
+    parts.push(`${t('输入')} > ${inputMinText} tokens`);
+  } else if (inputMaxText) {
+    parts.push(`${t('输入')} ≤ ${inputMaxText} tokens`);
   }
 
-  // 输出范围
-  if (rule.output_min > 0 && rule.output_max > 0) {
-    const minK = Math.round(rule.output_min / 1000);
-    const maxK = Math.round(rule.output_max / 1000);
-    if (minK === maxK) {
-      parts.push(`${t('输出')} = ${maxK}k tokens`);
+  const outputMinText = formatTokens(rule.output_min);
+  const outputMaxText = formatTokens(rule.output_max);
+  if (outputMinText && outputMaxText) {
+    if (rule.output_min === rule.output_max) {
+      parts.push(`${t('输出')} = ${outputMaxText} tokens`);
     } else {
-      parts.push(`${minK}k < ${t('输出')} ≤ ${maxK}k tokens`);
+      parts.push(`${outputMinText} < ${t('输出')} ≤ ${outputMaxText} tokens`);
     }
-  } else if (rule.output_min > 0) {
-    const minK = Math.round(rule.output_min / 1000);
-    parts.push(`${t('输出')} > ${minK}k tokens`);
-  } else if (rule.output_max > 0) {
-    const maxK = Math.round(rule.output_max / 1000);
-    parts.push(`${t('输出')} ≤ ${maxK}k tokens`);
+  } else if (outputMinText) {
+    parts.push(`${t('输出')} > ${outputMinText} tokens`);
+  } else if (outputMaxText) {
+    parts.push(`${t('输出')} ≤ ${outputMaxText} tokens`);
   }
 
   return parts.join(' ');
