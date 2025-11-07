@@ -718,18 +718,11 @@ export const calculateModelPrice = ({
   if (record.quota_type === 0) {
     // 按量计费 - 检查是否使用分段定价
     if (record.use_segmented_pricing && record.segmented_rules && record.segmented_rules.length > 0) {
-      // 添加调试日志
-      console.log('[calculateModelPrice] 检测到分段定价模型:', record.model_name);
-      console.log('[calculateModelPrice] 分段规则数量:', record.segmented_rules.length);
-      console.log('[calculateModelPrice] 分段规则详情:', record.segmented_rules);
-
       // 计算所有分段规则的价格
       const segmentedPrices = record.segmented_rules.map((rule) => ({
         rule,
         ...calculateSegmentRulePrice(rule, usedGroupRatio, displayPrice, tokenUnit, currency, precision),
       }));
-
-      console.log('[calculateModelPrice] 计算后的分段价格:', segmentedPrices);
 
       return {
         isPerToken: true,
