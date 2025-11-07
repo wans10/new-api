@@ -10,6 +10,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// validateSegmentedRatioRules validates rules for a single model configuration
+func validateSegmentedRatioRules(modelName string, rules []ratio_setting.SegmentRule) error {
+	for i, rule := range rules {
+		if rule.InputMin < 0 || rule.InputMax < 0 || rule.OutputMin < 0 || rule.OutputMax < 0 {
+			return fmt.Errorf("模型 %s 规则 %d 的token范围不能为负数", modelName, i+1)
+		}
+		if rule.InputMax > 0 && rule.InputMin > rule.InputMax {
+			return fmt.Errorf("模型 %s 规则 %d 的输入token最小值不能大于最大值", modelName, i+1)
+		}
+		if rule.OutputMax > 0 && rule.OutputMin > rule.OutputMax {
+			return fmt.Errorf("模型 %s 规则 %d 的输出token最小值不能大于最大值", modelName, i+1)
+		}
+		if rule.ModelRatio < 0 || rule.CompletionRatio < 0 {
+			return fmt.Errorf("模型 %s 规则 %d 的倍率不能为负数", modelName, i+1)
+		}
+	}
+	return nil
+}
+
 // GetSegmentedRatio returns the segmented ratio configuration for a specific model
 func GetSegmentedRatio(c *gin.Context) {
 	modelName := c.Param("model_name")
@@ -77,44 +96,27 @@ func CreateOrUpdateSegmentedRatio(c *gin.Context) {
 	}
 
 	// Validate each rule
-	for i, rule := range config.Rules {
-		if rule.InputMin < 0 || rule.InputMax < 0 || rule.OutputMin < 0 || rule.OutputMax < 0 {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"message": fmt.Sprintf("规则 %d 的token范围不能为负数", i+1),
-			})
-			return
-		}
-
-		if rule.InputMax > 0 && rule.InputMin > rule.InputMax {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"message": fmt.Sprintf("规则 %d 的输入token最小值不能大于最大值", i+1),
-			})
-			return
-		}
-
-		if rule.OutputMax > 0 && rule.OutputMin > rule.OutputMax {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"message": fmt.Sprintf("规则 %d 的输出token最小值不能大于最大值", i+1),
-			})
-			return
-		}
-
-		if rule.ModelRatio < 0 || rule.CompletionRatio < 0 {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"message": fmt.Sprintf("规则 %d 的倍率不能为负数", i+1),
-			})
-			return
-		}
+	if err := validateSegmentedRatioRules(config.ModelName, config.Rules); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
 	}
 
-	ratio_setting.SetSegmentedRatio(config.ModelName, &config)
-
 	// Save all segmented ratio configurations to database
-	jsonStr := ratio_setting.SegmentedRatio2JSONString()
+	// First, prepare the updated JSON with the new config
+	tempMap := ratio_setting.GetSegmentedRatioCopy()
+	tempMap[config.ModelName] = &config
+	jsonBytes, err := json.Marshal(tempMap)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "序列化配置失败: " + err.Error(),
+		})
+		return
+	}
+	jsonStr := string(jsonBytes)
 	err = model.UpdateOption("SegmentedRatio", jsonStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -123,6 +125,9 @@ func CreateOrUpdateSegmentedRatio(c *gin.Context) {
 		})
 		return
 	}
+
+	// Only update in-memory state after successful DB persistence
+	ratio_setting.SetSegmentedRatio(config.ModelName, &config)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -142,11 +147,20 @@ func DeleteSegmentedRatio(c *gin.Context) {
 		return
 	}
 
-	ratio_setting.DeleteSegmentedRatio(modelName)
-
 	// Save all segmented ratio configurations to database
-	jsonStr := ratio_setting.SegmentedRatio2JSONString()
-	err := model.UpdateOption("SegmentedRatio", jsonStr)
+	// First, prepare the updated JSON without the deleted model
+	tempMap := ratio_setting.GetSegmentedRatioCopy()
+	delete(tempMap, modelName)
+	jsonBytes, err := json.Marshal(tempMap)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "序列化配置失败: " + err.Error(),
+		})
+		return
+	}
+	jsonStr := string(jsonBytes)
+	err = model.UpdateOption("SegmentedRatio", jsonStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -154,6 +168,9 @@ func DeleteSegmentedRatio(c *gin.Context) {
 		})
 		return
 	}
+
+	// Only delete from memory after successful DB persistence
+	ratio_setting.DeleteSegmentedRatio(modelName)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -207,53 +224,31 @@ func ImportSegmentedRatios(c *gin.Context) {
 			})
 			return
 		}
-		for i, rule := range config.Rules {
-			if rule.InputMin < 0 || rule.InputMax < 0 || rule.OutputMin < 0 || rule.OutputMax < 0 {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"success": false,
-					"message": fmt.Sprintf("模型 %s 规则 %d 的token范围不能为负数", modelName, i+1),
-				})
-				return
-			}
-			if rule.InputMax > 0 && rule.InputMin > rule.InputMax {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"success": false,
-					"message": fmt.Sprintf("模型 %s 规则 %d 的输入token最小值不能大于最大值", modelName, i+1),
-				})
-				return
-			}
-			if rule.OutputMax > 0 && rule.OutputMin > rule.OutputMax {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"success": false,
-					"message": fmt.Sprintf("模型 %s 规则 %d 的输出token最小值不能大于最大值", modelName, i+1),
-				})
-				return
-			}
-			if rule.ModelRatio < 0 || rule.CompletionRatio < 0 {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"success": false,
-					"message": fmt.Sprintf("模型 %s 规则 %d 的倍率不能为负数", modelName, i+1),
-				})
-				return
-			}
+		if err := validateSegmentedRatioRules(modelName, config.Rules); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
 		}
 	}
 
-	err = ratio_setting.UpdateSegmentedRatioByJSONString(request.Data)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "导入分段倍率配置失败: " + err.Error(),
-		})
-		return
-	}
-
-	// Save to database
+	// Save to database first
 	err = model.UpdateOption("SegmentedRatio", request.Data)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
 			"message": "保存到数据库失败: " + err.Error(),
+		})
+		return
+	}
+
+	// Only update in-memory state after successful DB persistence
+	err = ratio_setting.UpdateSegmentedRatioByJSONString(request.Data)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "导入分段倍率配置失败: " + err.Error(),
 		})
 		return
 	}
