@@ -2,7 +2,7 @@
 
 ![new-api](/web/public/logo.png)
 
-# New API
+# LLM Hub
 
 🍥 **Passerelle de modèles étendus de nouvelle génération et système de gestion d'actifs d'IA**
 
@@ -105,7 +105,7 @@
 
 ```bash
 # Cloner le projet
-git clone https://github.com/QuantumNous/new-api.git
+git clone https://github.com/LLMHubTeam/llm-hub.git
 cd new-api
 
 # Modifier la configuration docker-compose.yml
@@ -323,7 +323,7 @@ docker run --name new-api -d --restart always \
 
 ```bash
 # Cloner le projet
-git clone https://github.com/QuantumNous/new-api.git
+git clone https://github.com/LLMHubTeam/llm-hub.git
 cd new-api
 
 # Modifier la configuration
@@ -440,7 +440,7 @@ Bienvenue à toutes les formes de contribution!
 
 <div align="center">
 
-### 💖 Merci d'utiliser New API
+### 💖 Merci d'utiliser LLM Hub
 
 Si ce projet vous est utile, bienvenue à nous donner une ⭐️ Étoile！
 

@@ -2,7 +2,7 @@
 
 ![new-api](/web/public/logo.png)
 
-# New API
+# LLM Hub
 
 🍥 **Next-Generation Large Model Gateway and AI Asset Management System**
 
@@ -105,7 +105,7 @@
 
 ```bash
 # Clone the project
-git clone https://github.com/QuantumNous/new-api.git
+git clone https://github.com/LLMHubTeam/llm-hub.git
 cd new-api
 
 # Edit docker-compose.yml configuration
@@ -327,7 +327,7 @@ docker run --name new-api -d --restart always \
 
 ```bash
 # Clone the project
-git clone https://github.com/QuantumNous/new-api.git
+git clone https://github.com/LLMHubTeam/llm-hub.git
 cd new-api
 
 # Edit configuration
@@ -408,7 +408,7 @@ docker run --name new-api -d --restart always \
 | Project | Description |
 |------|------|
 | [neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool) | Key quota query tool |
-| [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon) | New API high-performance optimized version |
+| [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon) | LLM Hub high-performance optimized version |
 
 ---
 
@@ -446,7 +446,7 @@ Welcome all forms of contribution!
 
 <div align="center">
 
-### 💖 Thank you for using New API
+### 💖 Thank you for using LLM Hub
 
 If this project is helpful to you, welcome to give us a ⭐️ Star！
 

@@ -1,22 +1,3 @@
-/*
-Copyright (C) 2025 QuantumNous
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-For commercial licensing, please contact support@quantumnous.com
-*/
-
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -111,7 +92,7 @@ function type2secretPrompt(type) {
     case 45:
         return '请输入渠道对应的鉴权密钥, 豆包语音输入：AppId|AccessToken';
     case 50:
-      return '按照如下格式输入: AccessKey|SecretKey, 如果上游是New API，则直接输ApiKey';
+      return '按照如下格式输入: AccessKey|SecretKey, 如果上游是LLM Hub，则直接输ApiKey';
     case 51:
       return '按照如下格式输入: AccessKey|SecretAccessKey';
     default:
@@ -440,7 +421,7 @@ const EditChannelModal = (props) => {
       Modal.confirm({
         title: '警告',
         content:
-          '不需要在末尾加/v1，New API会自动处理，添加后可能导致请求失败，是否继续？',
+          '不需要在末尾加/v1，LLM Hub会自动处理，添加后可能导致请求失败，是否继续？',
         onOk: () => {
           setInputs((inputs) => ({ ...inputs, [name]: value }));
         },
@@ -2318,7 +2299,7 @@ const EditChannelModal = (props) => {
                         <Banner
                           type='warning'
                           description={t(
-                            '如果你对接的是上游One API或者New API等转发项目，请使用OpenAI类型，不要使用此类型，除非你知道你在做什么。',
+                            '如果你对接的是上游One API或者LLM Hub等转发项目，请使用OpenAI类型，不要使用此类型，除非你知道你在做什么。',
                           )}
                           className='!rounded-lg'
                         />

@@ -2,7 +2,7 @@
 
 ![new-api](/web/public/logo.png)
 
-# New API
+# LLM Hub
 
 🍥 **次世代大規模モデルゲートウェイとAI資産管理システム**
 
@@ -105,7 +105,7 @@
 
 ```bash
 # プロジェクトをクローン
-git clone https://github.com/QuantumNous/new-api.git
+git clone https://github.com/LLMHubTeam/llm-hub.git
 cd new-api
 
 # docker-compose.yml 設定を編集
@@ -332,7 +332,7 @@ docker run --name new-api -d --restart always \
 
 ```bash
 # プロジェクトをクローン
-git clone https://github.com/QuantumNous/new-api.git
+git clone https://github.com/LLMHubTeam/llm-hub.git
 cd new-api
 
 # 設定を編集
@@ -411,7 +411,7 @@ docker run --name new-api -d --restart always \
 | プロジェクト | 説明 |
 |------|------|
 | [neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool) | キー使用量クォータ照会ツール |
-| [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon) | New API高性能最適化版 |
+| [new-api-horizon](https://github.com/Calcium-Ion/new-api-horizon) | LLM Hub高性能最適化版 |
 
 ---
 
@@ -449,7 +449,7 @@ docker run --name new-api -d --restart always \
 
 <div align="center">
 
-### 💖 New APIをご利用いただきありがとうございます
+### 💖 LLM Hubをご利用いただきありがとうございます
 
 このプロジェクトがあなたのお役に立てたなら、ぜひ ⭐️ スターをください！
 
