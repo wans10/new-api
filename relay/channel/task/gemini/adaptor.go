@@ -233,16 +233,14 @@ func (a *TaskAdaptor) EstimateBilling(c *gin.Context, info *relaycommon.RelayInf
 		resolution = strings.ToLower(req.Size)
 	}
 	if resolution == "4k" {
-		if resolution == "4k" {
-			modelName := info.UpstreamModelName
-			if modelName == "" {
-				modelName = info.OriginModelName
-			}
-			if strings.Contains(strings.ToLower(modelName), "fast") {
-				ratios["resolution-4k"] = 0.35 / 0.15
-			} else {
-				ratios["resolution-4k"] = 0.60 / 0.40
-			}
+		modelName := info.UpstreamModelName
+		if modelName == "" {
+			modelName = info.OriginModelName
+		}
+		if strings.Contains(strings.ToLower(modelName), "fast") {
+			ratios["resolution-4k"] = 0.35 / 0.15
+		} else {
+			ratios["resolution-4k"] = 0.60 / 0.40
 		}
 	}
 	// 720p / 1080p / 默认 → 倍率 1.0，不需要设置
