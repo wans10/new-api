@@ -230,9 +230,10 @@ func (a *TaskAdaptor) EstimateBilling(c *gin.Context, info *relaycommon.RelayInf
 	if duration <= 0 {
 		duration = 5 // 默认 5 秒
 	}
+	billedSeconds := ((duration + 4) / 5) * 5
 
 	ratios := map[string]float64{
-		"seconds": float64(duration),
+		"seconds": float64(billedSeconds),
 	}
 
 	// 分辨率倍率（官方定价）
