@@ -33,15 +33,22 @@ type AliVideoRequest struct {
 	Parameters *AliVideoParameters `json:"parameters,omitempty"`
 }
 
+// AliMediaItem wan2.7+新版协议的媒体输入项
+type AliMediaItem struct {
+	Type string `json:"type"`          // 媒体类型: "first_frame", "last_frame", "driving_audio", "first_clip"
+	URL  string `json:"url,omitempty"` // 媒体URL
+}
+
 // AliVideoInput 视频输入参数
 type AliVideoInput struct {
-	Prompt         string `json:"prompt,omitempty"`          // 文本提示词
-	ImgURL         string `json:"img_url,omitempty"`         // 首帧图像URL或Base64（图生视频）
-	FirstFrameURL  string `json:"first_frame_url,omitempty"` // 首帧图片URL（首尾帧生视频）
-	LastFrameURL   string `json:"last_frame_url,omitempty"`  // 尾帧图片URL（首尾帧生视频）
-	AudioURL       string `json:"audio_url,omitempty"`       // 音频URL（wan2.5支持）
-	NegativePrompt string `json:"negative_prompt,omitempty"` // 反向提示词
-	Template       string `json:"template,omitempty"`        // 视频特效模板
+	Prompt         string         `json:"prompt,omitempty"`          // 文本提示词
+	ImgURL         string         `json:"img_url,omitempty"`         // 首帧图像URL或Base64（图生视频，wan2.6及以下）
+	Media          []AliMediaItem `json:"media,omitempty"`           // 媒体数组（wan2.7+专用）
+	FirstFrameURL  string         `json:"first_frame_url,omitempty"` // 首帧图片URL（首尾帧生视频）
+	LastFrameURL   string         `json:"last_frame_url,omitempty"`  // 尾帧图片URL（首尾帧生视频）
+	AudioURL       string         `json:"audio_url,omitempty"`       // 音频URL（wan2.5支持）
+	NegativePrompt string         `json:"negative_prompt,omitempty"` // 反向提示词
+	Template       string         `json:"template,omitempty"`        // 视频特效模板
 }
 
 // AliVideoParameters 视频参数
@@ -80,9 +87,11 @@ type AliVideoOutput struct {
 
 // AliUsage 使用统计
 type AliUsage struct {
-	Duration   dto.IntValue `json:"duration,omitempty"`
-	VideoCount dto.IntValue `json:"video_count,omitempty"`
-	SR         dto.IntValue `json:"SR,omitempty"`
+	Duration            dto.IntValue `json:"duration,omitempty"`
+	InputVideoDuration  dto.IntValue `json:"input_video_duration,omitempty"`
+	OutputVideoDuration dto.IntValue `json:"output_video_duration,omitempty"`
+	VideoCount          dto.IntValue `json:"video_count,omitempty"`
+	SR                  dto.IntValue `json:"SR,omitempty"`
 }
 
 type AliMetadata struct {
@@ -179,6 +188,11 @@ var (
 	}
 )
 
+// isWan27Model 判断是否为 wan2.7+ 系列模型（使用新版 media 数组协议）
+func isWan27Model(model string) bool {
+	return strings.HasPrefix(model, "wan2.7")
+}
+
 func sizeToResolution(size string) (string, error) {
 	if lo.Contains(size480p, size) {
 		return "480P", nil
@@ -261,12 +275,22 @@ func (a *TaskAdaptor) convertToAliRequest(info *relaycommon.RelayInfo, req relay
 		Model: upstreamModel,
 		Input: AliVideoInput{
 			Prompt: req.Prompt,
-			ImgURL: req.InputReference,
 		},
 		Parameters: &AliVideoParameters{
 			PromptExtend: true, // 默认开启智能改写
 			Watermark:    false,
 		},
+	}
+
+	// wan2.7+ 使用新版 media 数组协议，旧版使用 img_url 字符串
+	if req.InputReference != "" {
+		if isWan27Model(upstreamModel) {
+			aliReq.Input.Media = []AliMediaItem{
+				{Type: "first_frame", URL: req.InputReference},
+			}
+		} else {
+			aliReq.Input.ImgURL = req.InputReference
+		}
 	}
 
 	// 处理分辨率映射
@@ -296,7 +320,9 @@ func (a *TaskAdaptor) convertToAliRequest(info *relaycommon.RelayInfo, req relay
 				aliReq.Parameters.Size = "1280*720"
 			}
 		} else {
-			if strings.HasPrefix(req.Model, "wan2.6") {
+			if isWan27Model(req.Model) {
+				aliReq.Parameters.Resolution = "1080P" // wan2.7 默认1080P
+			} else if strings.HasPrefix(req.Model, "wan2.6") {
 				aliReq.Parameters.Resolution = "1080P"
 			} else if strings.HasPrefix(req.Model, "wan2.5") {
 				aliReq.Parameters.Resolution = "1080P"
