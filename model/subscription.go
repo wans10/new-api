@@ -1055,7 +1055,7 @@ func PreConsumeUserSubscription(requestId string, userId int, modelName string, 
 		if len(subs) == 0 {
 			return errors.New("no active subscription")
 		}
-		modelNotAllowed := false
+		anyPlanAllowsModel := false
 		for _, candidate := range subs {
 			sub := candidate
 			plan, err := getSubscriptionPlanByIdTx(tx, sub.PlanId)
@@ -1064,8 +1064,10 @@ func PreConsumeUserSubscription(requestId string, userId int, modelName string, 
 			}
 			// Check model limits: skip subscriptions whose plan doesn't allow the requested model
 			if modelName != "" && !plan.IsModelAllowed(modelName) {
-				modelNotAllowed = true
 				continue
+			}
+			if modelName != "" {
+				anyPlanAllowsModel = true
 			}
 			if err := maybeResetUserSubscriptionWithPlanTx(tx, &sub, plan, now); err != nil {
 				return err
@@ -1110,7 +1112,7 @@ func PreConsumeUserSubscription(requestId string, userId int, modelName string, 
 			returnValue.AmountUsedAfter = sub.AmountUsed
 			return nil
 		}
-		if modelNotAllowed {
+		if modelName != "" && !anyPlanAllowsModel {
 			return fmt.Errorf("no subscription allows model %s", modelName)
 		}
 		return fmt.Errorf("subscription quota insufficient, need=%d", amount)

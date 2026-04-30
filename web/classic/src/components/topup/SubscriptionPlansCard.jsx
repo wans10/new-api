@@ -510,9 +510,13 @@ const SubscriptionPlansCard = ({
                   formatSubscriptionResetPeriod(plan, t) === t('不重置')
                     ? null
                     : `${t('额度重置')}: ${formatSubscriptionResetPeriod(plan, t)}`;
+                const modelLimitNames = (plan?.model_limits || '')
+                  .split(',')
+                  .map((model) => model.trim())
+                  .filter(Boolean);
                 const modelLimitsLabel =
-                  plan?.model_limits_enabled && plan?.model_limits
-                    ? `${t('可用模型')}: ${plan.model_limits.split(',').filter(Boolean).length} ${t('个模型')}`
+                  plan?.model_limits_enabled && modelLimitNames.length > 0
+                    ? `${t('可用模型')}: ${modelLimitNames.length} ${t('个模型')}`
                     : null;
                 const planBenefits = [
                   {
@@ -530,10 +534,7 @@ const SubscriptionPlansCard = ({
                   modelLimitsLabel
                     ? {
                         label: modelLimitsLabel,
-                        tooltip: plan.model_limits
-                          .split(',')
-                          .filter(Boolean)
-                          .join(', '),
+                        tooltip: modelLimitNames.join(', '),
                       }
                     : null,
                 ].filter(Boolean);
