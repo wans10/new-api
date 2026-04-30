@@ -3827,7 +3827,7 @@
     "选择同步来源": "Chọn nguồn đồng bộ",
     "选择同步渠道": "Chọn kênh đồng bộ",
     "选择同步语言": "Chọn ngôn ngữ đồng bộ",
-    "选择后，通过该订阅套餐计费的请求只能使用选中的模型；留空则不限制": "Khi được đặt, các yêu cầu thanh toán qua gói đăng ký này chỉ có thể sử dụng các mô hình đã chọn; để trống để không có giới hạn",
+    "选择后，通过该订阅套餐计费的请求只能使用选中的模型；留空则不限制": "Sau khi chọn, các yêu cầu được tính phí qua gói đăng ký này chỉ có thể dùng các mô hình đã chọn; để trống thì không giới hạn",
     "选择图片": "Chọn hình ảnh",
     "选择头像": "Chọn ảnh đại diện",
     "选择容器": "Select Container",

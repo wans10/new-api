@@ -3370,7 +3370,7 @@
     "选择同步来源": "Sélectionner la source de synchronisation",
     "选择同步渠道": "Sélectionner le canal de synchronisation",
     "选择同步语言": "Sélectionner la langue de synchronisation",
-    "选择后，通过该订阅套餐计费的请求只能使用选中的模型；留空则不限制": "Une fois sélectionné, les requêtes facturées via ce plan d'abonnement ne peuvent utiliser que les modèles sélectionnés ; laissez vide pour aucune restriction",
+    "选择后，通过该订阅套餐计费的请求只能使用选中的模型；留空则不限制": "Une fois sélectionnés, les modèles facturés via ce forfait d’abonnement ne peuvent être que ceux sélectionnés ; laissez vide pour ne pas imposer de restriction",
     "选择容器": "Select Container",
     "选择您的首选界面语言，设置将自动保存并同步到所有设备": "Sélectionnez votre langue d'interface préférée, les paramètres seront automatiquement enregistrés et synchronisés sur tous les appareils",
     "选择成功": "Sélection réussie",

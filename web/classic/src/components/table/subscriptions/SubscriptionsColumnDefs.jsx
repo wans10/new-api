@@ -104,7 +104,12 @@ const renderPlanTitle = (text, record, t) => {
         <Text type='tertiary'>{t('模型限制')}</Text>
         <Text>
           {plan?.model_limits_enabled && plan?.model_limits
-            ? `${plan.model_limits.split(',').filter(Boolean).length} ${t('个模型')}`
+            ? `${new Set(
+                plan.model_limits
+                  .split(',')
+                  .map((item) => item.trim())
+                  .filter(Boolean),
+              ).size} ${t('个模型')}`
             : t('不限')}
         </Text>
       </div>
