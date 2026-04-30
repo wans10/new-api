@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   Avatar,
   Button,
@@ -143,7 +143,7 @@ const AddEditSubscriptionModal = ({
     };
     };
 
-  const loadModels = async () => {
+  const loadModels = useCallback(async () => {
     try {
       const res = await API.get('/api/user/models');
       const { success, data } = res.data;
@@ -175,7 +175,7 @@ const AddEditSubscriptionModal = ({
       console.error('Failed to load models:', error);
       setModels([]);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     if (!visible) return;
@@ -191,7 +191,7 @@ const AddEditSubscriptionModal = ({
       .catch(() => setGroupOptions([]))
       .finally(() => setGroupLoading(false));
     loadModels();
-  }, [visible]);
+  }, [visible, loadModels, t]);
 
   const submit = async (values) => {
     if (!values.title || values.title.trim() === '') {
