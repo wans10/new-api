@@ -113,7 +113,7 @@ const AddEditSubscriptionModal = ({
     if (editingPlan?.plan?.id === undefined) return base;
     const p = editingPlan.plan || {};
     let modelLimits = [];
-    if (p.model_limits && p.model_limits !== '') {
+    if (p.model_limits_enabled && p.model_limits && p.model_limits !== '') {
       modelLimits = p.model_limits
         .split(',')
         .map((m) => m.trim())
