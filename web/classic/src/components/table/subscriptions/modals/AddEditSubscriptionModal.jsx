@@ -39,7 +39,7 @@ import {
   IconLink,
   IconSave,
 } from '@douyinfe/semi-icons';
-import { Clock, RefreshCw } from 'lucide-react';
+import { AlertCircle, Clock, RefreshCw } from 'lucide-react';
 import {
   API,
   showError,
@@ -83,6 +83,8 @@ const AddEditSubscriptionModal = ({
   const [groupOptions, setGroupOptions] = useState([]);
   const [groupLoading, setGroupLoading] = useState(false);
   const [models, setModels] = useState([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [modelsLoadError, setModelsLoadError] = useState(false);
   const isMobile = useIsMobile();
   const formApiRef = useRef(null);
   const isEdit = editingPlan?.plan?.id !== undefined;
@@ -141,9 +143,11 @@ const AddEditSubscriptionModal = ({
       creem_product_id: p.creem_product_id || '',
       model_limits: modelLimits,
     };
-    };
+  };
 
   const loadModels = useCallback(async () => {
+    setModelsLoading(true);
+    setModelsLoadError(false);
     try {
       const res = await API.get('/api/channel/models_enabled');
       const { success, data } = res.data;
@@ -169,11 +173,13 @@ const AddEditSubscriptionModal = ({
         });
         setModels(localModelOptions);
       } else {
-        setModels([]);
+        setModelsLoadError(true);
       }
     } catch (error) {
       console.error('Failed to load models:', error);
-      setModels([]);
+      setModelsLoadError(true);
+    } finally {
+      setModelsLoading(false);
     }
   }, [t]);
 
@@ -194,6 +200,10 @@ const AddEditSubscriptionModal = ({
   }, [visible, loadModels, t]);
 
   const submit = async (values) => {
+    if (modelsLoadError) {
+      showError(t('模型列表加载失败，无法提交，请重试'));
+      return;
+    }
     if (!values.title || values.title.trim() === '') {
       showError(t('套餐标题不能为空'));
       return;
@@ -281,6 +291,7 @@ const AddEditSubscriptionModal = ({
                 onClick={() => formApiRef.current?.submitForm()}
                 icon={<IconSave />}
                 loading={loading}
+                disabled={modelsLoading || modelsLoadError}
               >
                 {t('提交')}
               </Button>
@@ -578,6 +589,25 @@ const AddEditSubscriptionModal = ({
 
                   <Row gutter={12}>
                     <Col span={24}>
+                      {modelsLoadError && (
+                        <div className='mb-2 p-2 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between'>
+                          <div className='flex items-center gap-2'>
+                            <AlertCircle size={16} className='text-red-500' />
+                            <Text type='danger' size='small'>
+                              {t('模型列表加载失败，请重试')}
+                            </Text>
+                          </div>
+                          <Button
+                            size='small'
+                            theme='light'
+                            onClick={loadModels}
+                            icon={<RefreshCw size={14} />}
+                            loading={modelsLoading}
+                          >
+                            {t('重试')}
+                          </Button>
+                        </div>
+                      )}
                       <Form.Select
                         field='model_limits'
                         label={t('模型限制列表')}
@@ -586,6 +616,8 @@ const AddEditSubscriptionModal = ({
                         )}
                         multiple
                         optionList={models}
+                        loading={modelsLoading}
+                        disabled={modelsLoading || modelsLoadError}
                         extraText={t(
                           '选择后，通过该订阅套餐计费的请求只能使用选中的模型；留空则不限制',
                         )}
