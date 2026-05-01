@@ -145,9 +145,9 @@ const AddEditSubscriptionModal = ({
 
   const loadModels = useCallback(async () => {
     try {
-      const res = await API.get('/api/user/models');
+      const res = await API.get('/api/channel/models_enabled');
       const { success, data } = res.data;
-      if (success) {
+      if (success && Array.isArray(data)) {
         const categories = getModelCategories(t);
         const localModelOptions = data.map((model) => {
           let icon = null;
